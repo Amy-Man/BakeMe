@@ -25,7 +25,7 @@ public class RecipeRepository {
     public Boolean hasNoRecipes = false;
     private RecipeDao recipeDao;
     private LiveData<List<Recipe>> recipeListFromDB;
-    private MutableLiveData<List<Recipe>> recipeListFromApi;
+    private final MutableLiveData<List<Recipe>> recipeListFromApi = new MutableLiveData<>();
     private Integer id;
     private List<Recipe> recipeList;
     private LiveData<Recipe> recipeWithLiveData;
@@ -34,7 +34,7 @@ public class RecipeRepository {
     RecipeRepository(Application application, Recipe recipe) {
         AppDatabase db = AppDatabase.getInstance(application);
         this.recipeDao = db.recipeDao();
-        this.recipeListFromApi = getRecipesFromApi();
+        //this.recipeListFromApi = getRecipesFromApi();
         this.recipeListFromDB = recipeDao.loadAllRecipes();
         this.recipeWithLiveData = recipeDao.loadRecipeById(id);
         this.recipeForInsertOrDelete = recipe;
@@ -43,7 +43,6 @@ public class RecipeRepository {
     RecipeRepository(Application application) {
         AppDatabase db = AppDatabase.getInstance(application);
         this.recipeDao = db.recipeDao();
-        this.recipeListFromApi = getRecipesFromApi();
         this.recipeListFromDB = recipeDao.loadAllRecipes();
     }
 
@@ -75,16 +74,16 @@ public class RecipeRepository {
 
     }
 
-    public MutableLiveData<List<Recipe>> getRecipesFromApi() {
+    public LiveData<List<Recipe>> getRecipesFromApi() {
         final Service apiService = Client.getClient().create(Service.class);
-        final Call<MutableLiveData<List<Recipe>>> call = apiService.getRecipes();
-        call.enqueue(new Callback<MutableLiveData<List<Recipe>>>() {
+        final Call<List<Recipe>> call = apiService.getRecipes();
+        call.enqueue(new Callback<List<Recipe>>() {
             @Override
-            public void onResponse(Call<MutableLiveData<List<Recipe>>> call, Response<MutableLiveData<List<Recipe>>> response) {
+            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 if (response.isSuccessful()) {
-                    recipeListFromApi = response.body();
-                    Log.d(TAG, "onResponse: " + recipeList);
-                    if (recipeList == null) {
+                    recipeListFromApi.setValue(response.body());
+                    Log.d(TAG, "onResponse: " + recipeListFromApi);
+                    if (recipeListFromApi == null) {
                         hasNoRecipes = true;
                         ApiError apiError = ErrorUtils.parseError(response);
                         Log.e(TAG, "" + apiError.getMessage() + " " + apiError.getStatusCode() + " " + apiError.getEndpoint());
@@ -97,7 +96,7 @@ public class RecipeRepository {
             }
 
             @Override
-            public void onFailure(Call<MutableLiveData<List<Recipe>>> call, Throwable t) {
+            public void onFailure(Call<List<Recipe>> call, Throwable t) {
                 hasNoRecipes = true;
                 Log.d(TAG, "on Failure" + t.getMessage());
             }

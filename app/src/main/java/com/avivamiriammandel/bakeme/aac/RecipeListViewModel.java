@@ -16,7 +16,7 @@ public class RecipeListViewModel extends AndroidViewModel {
     // Constant for logging
     private static final String TAG = RecipeListViewModel.class.getSimpleName();
     private RecipeRepository recipeRepository;
-    private MutableLiveData<List<Recipe>> recipesListFromApi;
+    private LiveData<List<Recipe>> recipesListFromApi;
     private LiveData<List<Recipe>> recipesListFromDB;
 
 
@@ -26,7 +26,7 @@ public class RecipeListViewModel extends AndroidViewModel {
 
     }
 
-    public MutableLiveData<List<Recipe>> getRecipesListFromApi() {
+    public LiveData<List<Recipe>> getRecipesListFromApi() {
         //do
         recipesListFromApi = recipeRepository.getRecipesFromApi();
         //while (recipesListFromApi == null);

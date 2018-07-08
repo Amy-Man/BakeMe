@@ -23,7 +23,7 @@ import static com.avivamiriammandel.bakeme.rest.Client.getClient;
  */
 
 public class ErrorUtils {
-    public static ApiError parseError(@NonNull Response<MutableLiveData<List<Recipe>>> response) {
+    public static ApiError parseError(@NonNull Response<List<Recipe>> response) {
         Converter<ResponseBody, ApiError> converter =
                 getClient()
                         .responseBodyConverter(ApiError.class, new Annotation[0]);
