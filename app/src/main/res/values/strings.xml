@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">BakeMe</string>
+    <string name="title_recipe_detail">Recipe Detail</string>
+    <string name="database_name">recipes</string>
+
+    <string name="no_api_data">No Api Data</string>
+    <string name="on_bind_view_holder">onBindViewHolder:  </string>
+    <string name="on_response">onResponse:   </string>
+    <string name="on_failure">onFailure:   </string>
+    <string name="on_exception">on Exception: </string>
+
+    <string name="ingredient_title">Ingredients:</string>
+    <string name="servings_title">Serves</string>
+
+</resources>
