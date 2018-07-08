@@ -58,8 +58,12 @@ public class RecipeRepository {
        AppExecutors.getInstance().diskIO().execute(new Runnable() {
            @Override
            public void run() {
-               recipeDao.insertRecipe(recipeForInsert);
-               Log.d(TAG, "run: Insert" );
+               try {
+                   recipeDao.insertRecipe(recipeForInsert);
+                   Log.d(TAG, "run: Insert");
+               }catch (NullPointerException e) {
+                   throw new NullPointerException(e + "null Insert");
+               }
            }
        });
 
@@ -68,7 +72,12 @@ public class RecipeRepository {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                recipeDao.deleteRecipe(recipeForDelete);
+                try {
+                    recipeDao.deleteRecipe(recipeForDelete);
+                } catch (NullPointerException e) {
+                    throw new NullPointerException(e + "null Delete");
+                }
+
             }
         });
 

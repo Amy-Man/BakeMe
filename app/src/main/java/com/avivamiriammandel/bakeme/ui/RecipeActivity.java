@@ -80,8 +80,12 @@ public class RecipeActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
-        recipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
+///this line should be in try catch
+        try {
+            recipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
+        } catch (NullPointerException e) {
+            throw new NullPointerException(e + "null");
+        }
          recipeListViewModel.getRecipesListFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
              @Override
              public void onChanged(@Nullable List<Recipe> recipes) {
