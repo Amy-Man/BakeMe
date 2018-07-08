@@ -55,6 +55,7 @@ public class RecipeRepository {
     }
 
     public void insertRecipe(final Recipe recipeForInsert){
+       // recipeDao.insertRecipe(recipeForInsert);
        AppExecutors.getInstance().diskIO().execute(new Runnable() {
            @Override
            public void run() {
@@ -66,9 +67,9 @@ public class RecipeRepository {
                }
            }
        });
-
     }
     public void deleteRecipe(final Recipe recipeForDelete){
+        //recipeDao.deleteRecipe(recipeForDelete);
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -80,7 +81,6 @@ public class RecipeRepository {
 
             }
         });
-
     }
 
     public LiveData<List<Recipe>> getRecipesFromApi() {

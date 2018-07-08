@@ -18,6 +18,7 @@ public class RecipeInsertOrDeleteViewModel extends AndroidViewModel {
     public RecipeInsertOrDeleteViewModel(@NonNull Application application, Recipe recipeForInsertOrDelete) {
         super(application);
         this.recipeRepository = new RecipeRepository(application);
+        this.recipeForInsertOrDelete = recipeForInsertOrDelete;
         
     }
 

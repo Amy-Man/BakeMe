@@ -56,7 +56,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         } catch (IllegalArgumentException e) {
             Log.e(TAG, R.string.on_bind_view_holder + e.getMessage());
         }
-        holder.recipeServingsText.setText(recipe.getServings().toString());
+        holder.recipeServingsText.setText(String.format(recipe.getServings().toString()));
 
        }
 
@@ -80,7 +80,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             constraintLayout = itemView.findViewById(R.id.root_recipe_list_card);
             cardView = itemView.findViewById(R.id.recipe_list_card);
             recipeImage = itemView.findViewById(R.id.recipe_thumbnail);
-            recipeDetailText = itemView.findViewById(R.id.recipe_detail);
+            recipeDetailText = itemView.findViewById(R.id.recipe_description);
             recipeServingsText = itemView.findViewById(R.id.recipe_number_of_servings);
 
         }

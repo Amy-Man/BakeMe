@@ -102,10 +102,11 @@ public class RecipeActivity extends AppCompatActivity {
                          @Override
                          public void onChanged(@Nullable List<Recipe> recipes) {
                              adapter = new RecipeAdapter(context, recipes);
+                             recyclerView.setAdapter(adapter);
                          }
                      });
 
-                     recyclerView.setAdapter(adapter);
+
                  }
              }
          });
