@@ -54,5 +54,8 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.thoughtbot:expandablerecyclerview:1.0'
+
+    implementation 'com.android.support:animated-vector-drawable:27.1.1'
+    implementation 'com.android.support:palette-v7:27.1.1'
 }
 

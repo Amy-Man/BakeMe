@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class RecipeActivity extends AppCompatActivity {
     private List<Recipe> recipeOneList;
     private LifecycleOwner lifecycleOwner;
     private RecipeAdapter adapter;
+    private static final String TAG = RecipeActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,27 +91,28 @@ public class RecipeActivity extends AppCompatActivity {
          recipeListViewModel.getRecipesListFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
              @Override
              public void onChanged(@Nullable List<Recipe> recipes) {
+                 Log.d(TAG, "onChanged: "+ recipes);
                  if (recipes != null) {
-                     for (int i = 0; i < recipes.size(); i++) {
+                     for (Recipe recipe:recipes) {
+                         Log.d(TAG, "onChanged: how many" + recipe );
                          RecipeInsertOrDeleteViewModelFactory modelFactory =
-                                 new RecipeInsertOrDeleteViewModelFactory(getApplication(), recipes.get(i));
-                         final RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel =
+                                 new RecipeInsertOrDeleteViewModelFactory(getApplication(), recipe);
+                          RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel =
                                  ViewModelProviders.of(RecipeActivity.this, modelFactory).get(RecipeInsertOrDeleteViewModel.class);
                          recipeInsertOrDeleteViewModel.InsertRecipe();
-                     }
-
-                     recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
-                         @Override
-                         public void onChanged(@Nullable List<Recipe> recipes) {
-                             adapter = new RecipeAdapter(context, recipes);
-                             recyclerView.setAdapter(adapter);
                          }
-                     });
-
-
-                 }
+                         }
              }
          });
+
+        recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+            @Override
+            public void onChanged(@Nullable List<Recipe> recipes) {
+                adapter = new RecipeAdapter(context, recipes);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+
 
     }
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {

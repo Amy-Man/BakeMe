@@ -11,7 +11,7 @@ import com.avivamiriammandel.bakeme.model.Recipe;
 
 public class RecipeInsertOrDeleteViewModel extends AndroidViewModel {
 
-    private static final String TAG = RecipeListViewModel.class.getSimpleName();
+    private static final String TAG = RecipeInsertOrDeleteViewModel.class.getSimpleName();
     private RecipeRepository recipeRepository;
     private Recipe recipeForInsertOrDelete;
 
@@ -28,7 +28,7 @@ public class RecipeInsertOrDeleteViewModel extends AndroidViewModel {
 
     public void InsertRecipe() {
         recipeRepository.insertRecipe(recipeForInsertOrDelete);
-        Log.d(TAG, "InsertRecipe: success");
+        Log.d(TAG, "InsertRecipe: success " + recipeForInsertOrDelete);
     }
 
 }
