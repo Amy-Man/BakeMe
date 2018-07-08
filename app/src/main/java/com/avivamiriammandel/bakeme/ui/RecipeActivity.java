@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.avivamiriammandel.bakeme.R;
 import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModel;
+import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModelFactory;
 import com.avivamiriammandel.bakeme.aac.RecipeListViewModel;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.dummy.DummyContent;
@@ -83,9 +84,14 @@ public class RecipeActivity extends AppCompatActivity {
         recipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
         recipeOneList = recipeListViewModel.getRecipesListFromApi();
         if (recipeOneList != null) {
-            for (int i = 0; i < recipeOneList.size(); i++)
-                recipeInsertOrDeleteViewModel.InsertRecipe(recipeOneList.get(i));
 
+            for (int i = 0; i < recipeOneList.size(); i++) {
+                RecipeInsertOrDeleteViewModelFactory modelFactory =
+                        new RecipeInsertOrDeleteViewModelFactory(getApplication(), recipeOneList.get(i));
+                final RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel =
+                        ViewModelProviders.of(this, modelFactory).get(RecipeInsertOrDeleteViewModel.class);
+                recipeInsertOrDeleteViewModel.InsertRecipe();
+            }
 
             recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
                 @Override

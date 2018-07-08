@@ -13,15 +13,15 @@ public class RecipeViewModel extends AndroidViewModel {
 
     private RecipeRepository recipeRepository;
     private LiveData<Recipe> recipe;
-    private int recipeIdForQuery;
+
 
     public RecipeViewModel(@NonNull Application application, int recipeId) {
         super(application);
         this.recipeRepository = new RecipeRepository(application);
-        this.recipeIdForQuery = recipeId;
+
     }
 
-    private LiveData<Recipe> loadRecipe(int recipeId){
+    private LiveData<Recipe> loadRecipe(int recipeIdForQuery){
         return recipeRepository.loadRecipe(recipeIdForQuery);
     }
 

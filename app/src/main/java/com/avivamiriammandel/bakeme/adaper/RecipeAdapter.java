@@ -34,9 +34,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     }
 
-    public RecipeAdapter(Observer<List<Recipe>> observer, List<Recipe> recipes) {
-    }
-
     @NonNull
     @Override
     public RecipeAdapter.RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -59,7 +56,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         } catch (IllegalArgumentException e) {
             Log.e(TAG, R.string.on_bind_view_holder + e.getMessage());
         }
-
+        holder.recipeServingsText.setText(recipe.getServings().toString());
 
        }
 

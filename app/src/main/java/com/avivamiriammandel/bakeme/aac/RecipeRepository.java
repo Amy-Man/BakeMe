@@ -58,7 +58,8 @@ public class RecipeRepository {
        AppExecutors.getInstance().diskIO().execute(new Runnable() {
            @Override
            public void run() {
-               recipeDao.insertRecipe(recipeForInsertOrDelete);
+               recipeDao.insertRecipe(recipeForInsert);
+               Log.d(TAG, "run: Insert" );
            }
        });
 
@@ -67,7 +68,7 @@ public class RecipeRepository {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                recipeDao.deleteRecipe(recipeForInsertOrDelete);
+                recipeDao.deleteRecipe(recipeForDelete);
             }
         });
 
@@ -81,14 +82,15 @@ public class RecipeRepository {
             public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 if (response.isSuccessful()) {
                     recipeList = response.body();
-                    if (recipeListFromApi == null) {
+                    Log.d(TAG, "onResponse: " + recipeList);
+                    if (recipeList == null) {
                         hasNoRecipes = true;
                         ApiError apiError = ErrorUtils.parseError(response);
                         Log.e(TAG, "" + apiError.getMessage() + " " + apiError.getStatusCode() + " " + apiError.getEndpoint());
                     } else {
                         hasNoRecipes = false;
                     }
-                    Log.d(TAG, "onResponse: "+ hasNoRecipes);
+                    Log.d(TAG, "onResponse1: "+ hasNoRecipes);
                 }
 
             }
