@@ -82,26 +82,27 @@ public class RecipeActivity extends AppCompatActivity {
 
 
         recipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
-        recipeOneList = recipeListViewModel.getRecipesListFromApi();
-        if (recipeOneList != null) {
+         recipeListViewModel.getRecipesListFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+             @Override
+             public void onChanged(@Nullable List<Recipe> recipes) {
+                 for (int i = 0; i < recipes.size(); i++) {
+                     RecipeInsertOrDeleteViewModelFactory modelFactory =
+                             new RecipeInsertOrDeleteViewModelFactory(getApplication(), recipes.get(i));
+                     final RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel =
+                             ViewModelProviders.of(RecipeActivity.this, modelFactory).get(RecipeInsertOrDeleteViewModel.class);
+                     recipeInsertOrDeleteViewModel.InsertRecipe();
+                 }
 
-            for (int i = 0; i < recipeOneList.size(); i++) {
-                RecipeInsertOrDeleteViewModelFactory modelFactory =
-                        new RecipeInsertOrDeleteViewModelFactory(getApplication(), recipeOneList.get(i));
-                final RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel =
-                        ViewModelProviders.of(this, modelFactory).get(RecipeInsertOrDeleteViewModel.class);
-                recipeInsertOrDeleteViewModel.InsertRecipe();
-            }
+                 recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+                     @Override
+                     public void onChanged(@Nullable List<Recipe> recipes) {
+                         adapter = new RecipeAdapter(context, recipes);
+                     }
+                 });
 
-            recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
-                @Override
-                public void onChanged(@Nullable List<Recipe> recipes) {
-                    adapter = new RecipeAdapter(context, recipes);
-                }
-            });
-
-            recyclerView.setAdapter(adapter);
-        }
+                 recyclerView.setAdapter(adapter);
+             }
+         });
 
     }
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {

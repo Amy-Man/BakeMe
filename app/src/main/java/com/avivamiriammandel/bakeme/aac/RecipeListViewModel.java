@@ -3,6 +3,7 @@ package com.avivamiriammandel.bakeme.aac;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -15,7 +16,7 @@ public class RecipeListViewModel extends AndroidViewModel {
     // Constant for logging
     private static final String TAG = RecipeListViewModel.class.getSimpleName();
     private RecipeRepository recipeRepository;
-    private List<Recipe> recipesListFromApi;
+    private MutableLiveData<List<Recipe>> recipesListFromApi;
     private LiveData<List<Recipe>> recipesListFromDB;
 
 
@@ -25,7 +26,7 @@ public class RecipeListViewModel extends AndroidViewModel {
 
     }
 
-    public List<Recipe> getRecipesListFromApi() {
+    public MutableLiveData<List<Recipe>> getRecipesListFromApi() {
         //do
         recipesListFromApi = recipeRepository.getRecipesFromApi();
         //while (recipesListFromApi == null);

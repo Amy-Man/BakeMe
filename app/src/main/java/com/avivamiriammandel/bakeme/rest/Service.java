@@ -1,6 +1,7 @@
 package com.avivamiriammandel.bakeme.rest;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 
 import com.avivamiriammandel.bakeme.model.Recipe;
 
@@ -14,6 +15,6 @@ import retrofit2.http.Query;
 public interface Service {
     String api_path = "topher/2017/May/59121517_baking/baking.json";
     @GET(api_path)
-    Call<List<Recipe>> getRecipes();
+    Call<MutableLiveData<List<Recipe>>> getRecipes();
 
 }
