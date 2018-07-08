@@ -26,9 +26,9 @@ public class RecipeListViewModel extends AndroidViewModel {
     }
 
     public List<Recipe> getRecipesListFromApi() {
-        do
+        //do
         recipesListFromApi = recipeRepository.getRecipesFromApi();
-        while (recipesListFromApi == null);
+        //while (recipesListFromApi == null);
         return  recipesListFromApi;
 
     }

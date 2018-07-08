@@ -60,7 +60,7 @@ public class RecipeActivity extends AppCompatActivity {
         context = RecipeActivity.this;
         lifecycleOwner = RecipeActivity.this;
         LiveData<List<Recipe>> recipeList;
-        Toolbar toolbar =  findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
@@ -82,21 +82,22 @@ public class RecipeActivity extends AppCompatActivity {
 
         recipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
         recipeOneList = recipeListViewModel.getRecipesListFromApi();
-                for (int i = 0; i < recipeOneList.size(); i++)
+        if (recipeOneList != null) {
+            for (int i = 0; i < recipeOneList.size(); i++)
                 recipeInsertOrDeleteViewModel.InsertRecipe(recipeOneList.get(i));
 
 
-        recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
-            @Override
-            public void onChanged(@Nullable List<Recipe> recipes) {
-                adapter = new RecipeAdapter(context, recipes);
-            }
-        });
+            recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+                @Override
+                public void onChanged(@Nullable List<Recipe> recipes) {
+                    adapter = new RecipeAdapter(context, recipes);
+                }
+            });
 
-        recyclerView.setAdapter(adapter);
+            recyclerView.setAdapter(adapter);
+        }
+
     }
-
-
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
