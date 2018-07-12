@@ -19,7 +19,7 @@ public class RecipeInsertOrDeleteViewModel extends AndroidViewModel {
         super(application);
         this.recipeRepository = new RecipeRepository(application);
         this.recipeForInsertOrDelete = recipeForInsertOrDelete;
-        
+        Log.d(TAG, "RecipeInsertOrDeleteViewModel: " + recipeForInsertOrDelete);
     }
 
     public void deleteRecipe() {

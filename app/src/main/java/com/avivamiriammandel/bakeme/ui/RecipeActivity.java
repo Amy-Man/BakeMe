@@ -20,11 +20,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avivamiriammandel.bakeme.R;
 import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModel;
 import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModelFactory;
 import com.avivamiriammandel.bakeme.aac.RecipeListViewModel;
+import com.avivamiriammandel.bakeme.aac.RecipesInsertViewModel;
+import com.avivamiriammandel.bakeme.aac.RecipesInsertViewModelFactory;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.dummy.DummyContent;
 import com.avivamiriammandel.bakeme.model.Recipe;
@@ -53,6 +56,7 @@ public class RecipeActivity extends AppCompatActivity {
     private LifecycleOwner lifecycleOwner;
     private RecipeAdapter adapter;
     private static final String TAG = RecipeActivity.class.getSimpleName();
+    public Boolean recipesInserted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +66,7 @@ public class RecipeActivity extends AppCompatActivity {
 
         context = RecipeActivity.this;
         lifecycleOwner = RecipeActivity.this;
-        LiveData<List<Recipe>> recipeList;
+        final LiveData<List<Recipe>> recipeList;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
@@ -93,25 +97,30 @@ public class RecipeActivity extends AppCompatActivity {
              public void onChanged(@Nullable List<Recipe> recipes) {
                  Log.d(TAG, "onChanged: "+ recipes);
                  if (recipes != null) {
-                     for (Recipe recipe:recipes) {
-                         Log.d(TAG, "onChanged: how many" + recipe );
-                         RecipeInsertOrDeleteViewModelFactory modelFactory =
-                                 new RecipeInsertOrDeleteViewModelFactory(getApplication(), recipe);
-                          RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel =
-                                 ViewModelProviders.of(RecipeActivity.this, modelFactory).get(RecipeInsertOrDeleteViewModel.class);
-                         recipeInsertOrDeleteViewModel.InsertRecipe();
+                      RecipesInsertViewModelFactory modelFactory =
+                                 new RecipesInsertViewModelFactory(getApplication(), recipes);
+                     RecipesInsertViewModel recipesInsertViewModel =
+                                  ViewModelProviders.of(RecipeActivity.this, modelFactory).get(RecipesInsertViewModel.class);
+                     recipesInsertViewModel.InsertListOfRecipes().observe(lifecycleOwner, new Observer<Boolean>() {
+                         @Override
+                         public void onChanged(@Nullable Boolean recipesInserted) {
+                             if (recipesInserted) {
+                                 RecipeListViewModel recipeListViewModelDB =
+                                         ViewModelProviders.of(RecipeActivity.this).get(RecipeListViewModel.class);
+                                 recipeListViewModelDB.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+                                     @Override
+                                     public void onChanged(@Nullable List<Recipe> recipes1) {
+                                         adapter = new RecipeAdapter(context, recipes1);
+                                         recyclerView.setAdapter(adapter);
+                                     }
+                                 });
+                             }
                          }
-                         }
+                     });
+
+                 }
              }
          });
-
-        recipeListViewModel.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
-            @Override
-            public void onChanged(@Nullable List<Recipe> recipes) {
-                adapter = new RecipeAdapter(context, recipes);
-                recyclerView.setAdapter(adapter);
-            }
-        });
 
 
     }

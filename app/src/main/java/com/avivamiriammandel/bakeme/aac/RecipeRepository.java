@@ -30,15 +30,28 @@ public class RecipeRepository {
     private List<Recipe> recipeList;
     private LiveData<Recipe> recipeWithLiveData;
     private Recipe recipeForInsertOrDelete;
+    private List<Recipe> recipesForInsert;
+    public MutableLiveData<Boolean> recipesInserted = new MutableLiveData<>();
+    int count = 0;
 
-    RecipeRepository(Application application, Recipe recipe) {
+
+    RecipeRepository(Application application, List<Recipe> recipesForInsert) {
         AppDatabase db = AppDatabase.getInstance(application);
         this.recipeDao = db.recipeDao();
-        //this.recipeListFromApi = getRecipesFromApi();
         this.recipeListFromDB = recipeDao.loadAllRecipes();
         this.recipeWithLiveData = recipeDao.loadRecipeById(id);
-        this.recipeForInsertOrDelete = recipe;
+        this.recipesForInsert = recipesForInsert;
+
     }
+
+    RecipeRepository(Application application, Recipe recipeForInsertOrDelete) {
+        AppDatabase db = AppDatabase.getInstance(application);
+        this.recipeDao = db.recipeDao();
+        this.recipeListFromDB = recipeDao.loadAllRecipes();
+        this.recipeWithLiveData = recipeDao.loadRecipeById(id);
+        this.recipeForInsertOrDelete = recipeForInsertOrDelete;
+    }
+
 
     RecipeRepository(Application application) {
         AppDatabase db = AppDatabase.getInstance(application);
@@ -60,13 +73,36 @@ public class RecipeRepository {
            @Override
            public void run() {
                try {
-                   recipeDao.insertRecipe(recipeForInsert);
+                   recipeDao.insertRecipes(recipesForInsert);
                    Log.d(TAG, "run: Insert");
                }catch (NullPointerException e) {
                    throw new NullPointerException(e + "null Insert");
                }
            }
        });
+    }
+    public LiveData<Boolean> insertListOfRecipes(final List<Recipe> recipesForInsert){
+       // recipeDao.insertRecipe(recipeForInsert);
+        recipesInserted.setValue(false);
+
+       AppExecutors.getInstance().diskIO().execute(new Runnable() {
+           @Override
+           public void run() {
+               try {
+                   List<Long> recipesInsertedLong = recipeDao.insertRecipes(recipesForInsert);
+                   for (Long recipeInserted:recipesInsertedLong){
+                       if (recipeInserted != -1)
+                       count++;
+                        }
+                   if (count == recipesForInsert.size())
+                       recipesInserted.postValue(true);
+                   Log.d(TAG, "run: Insert all");
+                   }catch (NullPointerException e) {
+                   throw new NullPointerException(e + "null Insert");
+               }
+           }
+       });
+       return recipesInserted;
     }
     public void deleteRecipe(final Recipe recipeForDelete){
         //recipeDao.deleteRecipe(recipeForDelete);

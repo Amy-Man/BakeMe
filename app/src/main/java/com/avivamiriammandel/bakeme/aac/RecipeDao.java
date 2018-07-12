@@ -18,7 +18,7 @@ public interface RecipeDao {
     LiveData<List<Recipe>> loadAllRecipes();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertRecipe(Recipe recipe);
+    List<Long> insertRecipes(List<Recipe> recipe);
 
     @Delete
     void deleteRecipe(Recipe recipe);

@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.avivamiriammandel.bakeme.model.Recipe;
 
@@ -36,6 +37,8 @@ public class RecipeListViewModel extends AndroidViewModel {
 
     public LiveData<List<Recipe>> getRecipesListFromDB() {
         recipesListFromDB = recipeRepository.loadAllRecipes();
+        if (recipesListFromDB != null)
+            Log.d(TAG, "getRecipesListFromDB: " + recipesListFromDB);
         return recipesListFromDB;
     }
 }
