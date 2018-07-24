@@ -1,33 +1,24 @@
 package com.avivamiriammandel.bakeme.ui;
 
-import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.avivamiriammandel.bakeme.R;
 import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModel;
-import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModelFactory;
-import com.avivamiriammandel.bakeme.aac.RecipeListViewModel;
 import com.avivamiriammandel.bakeme.aac.RecipesInsertViewModel;
 import com.avivamiriammandel.bakeme.aac.RecipesInsertViewModelFactory;
+import com.avivamiriammandel.bakeme.aac.RecipesViewModel;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.dummy.DummyContent;
 import com.avivamiriammandel.bakeme.model.Recipe;
@@ -42,20 +33,20 @@ import java.util.List;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class RecipeActivity extends AppCompatActivity {
+public class RecipesActivity extends AppCompatActivity {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     //private boolean mTwoPane;
-    private RecipeListViewModel recipeListViewModel;
+    private RecipesViewModel recipesViewModel;
     private RecipeInsertOrDeleteViewModel recipeInsertOrDeleteViewModel;
     private Context context;
     private List<Recipe> recipeOneList;
     private LifecycleOwner lifecycleOwner;
     private RecipeAdapter adapter;
-    private static final String TAG = RecipeActivity.class.getSimpleName();
+    private static final String TAG = RecipesActivity.class.getSimpleName();
     public Boolean recipesInserted = false;
 
     @Override
@@ -64,8 +55,8 @@ public class RecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_recipe_list);
 
 
-        context = RecipeActivity.this;
-        lifecycleOwner = RecipeActivity.this;
+        context = RecipesActivity.this;
+        lifecycleOwner = RecipesActivity.this;
         final LiveData<List<Recipe>> recipeList;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -88,11 +79,11 @@ public class RecipeActivity extends AppCompatActivity {
 
 ///this line should be in try catch
         try {
-            recipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
+            recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
         } catch (NullPointerException e) {
             throw new NullPointerException(e + "null");
         }
-         recipeListViewModel.getRecipesListFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+         recipesViewModel.getRecipesListFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
              @Override
              public void onChanged(@Nullable List<Recipe> recipes) {
                  Log.d(TAG, "onChanged: "+ recipes);
@@ -100,14 +91,14 @@ public class RecipeActivity extends AppCompatActivity {
                       RecipesInsertViewModelFactory modelFactory =
                                  new RecipesInsertViewModelFactory(getApplication(), recipes);
                      RecipesInsertViewModel recipesInsertViewModel =
-                                  ViewModelProviders.of(RecipeActivity.this, modelFactory).get(RecipesInsertViewModel.class);
+                                  ViewModelProviders.of(RecipesActivity.this, modelFactory).get(RecipesInsertViewModel.class);
                      recipesInsertViewModel.InsertListOfRecipes().observe(lifecycleOwner, new Observer<Boolean>() {
                          @Override
                          public void onChanged(@Nullable Boolean recipesInserted) {
                              if (recipesInserted) {
-                                 RecipeListViewModel recipeListViewModelDB =
-                                         ViewModelProviders.of(RecipeActivity.this).get(RecipeListViewModel.class);
-                                 recipeListViewModelDB.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+                                 RecipesViewModel recipesViewModelDB =
+                                         ViewModelProviders.of(RecipesActivity.this).get(RecipesViewModel.class);
+                                 recipesViewModelDB.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
                                      @Override
                                      public void onChanged(@Nullable List<Recipe> recipes1) {
                                          adapter = new RecipeAdapter(context, recipes1);

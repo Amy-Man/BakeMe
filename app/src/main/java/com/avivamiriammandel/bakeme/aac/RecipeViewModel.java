@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
+import com.avivamiriammandel.bakeme.aac.RecipeRepository;
 import com.avivamiriammandel.bakeme.model.Recipe;
 
 

@@ -1,7 +1,5 @@
 package com.avivamiriammandel.bakeme.adaper;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -15,8 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.avivamiriammandel.bakeme.R;
-import com.avivamiriammandel.bakeme.aac.RecipeListViewModel;
-import com.avivamiriammandel.bakeme.aac.RecipeViewModel;
 import com.avivamiriammandel.bakeme.glide.GlideApp;
 import com.avivamiriammandel.bakeme.model.Recipe;
 

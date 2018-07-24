@@ -3,8 +3,6 @@ package com.avivamiriammandel.bakeme.aac;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -12,16 +10,16 @@ import com.avivamiriammandel.bakeme.model.Recipe;
 
 import java.util.List;
 
-public class RecipeListViewModel extends AndroidViewModel {
+public class RecipesViewModel extends AndroidViewModel {
 
     // Constant for logging
-    private static final String TAG = RecipeListViewModel.class.getSimpleName();
-    private RecipeRepository recipeRepository;
+    private static final String TAG = RecipesViewModel.class.getSimpleName();
+    public RecipeRepository recipeRepository;
     private LiveData<List<Recipe>> recipesListFromApi;
     private LiveData<List<Recipe>> recipesListFromDB;
 
 
-    public RecipeListViewModel(@NonNull Application application) {
+    public RecipesViewModel(@NonNull Application application) {
         super(application);
         recipeRepository = new RecipeRepository(application);
 
