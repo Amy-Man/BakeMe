@@ -35,7 +35,7 @@ public class RecipeRepository {
     int count = 0;
 
 
-    RecipeRepository(Application application, List<Recipe> recipesForInsert) {
+   public RecipeRepository(Application application, List<Recipe> recipesForInsert) {
         AppDatabase db = AppDatabase.getInstance(application);
         this.recipeDao = db.recipeDao();
         this.recipeListFromDB = recipeDao.loadAllRecipes();
@@ -44,7 +44,7 @@ public class RecipeRepository {
 
     }
 
-    RecipeRepository(Application application, Recipe recipeForInsertOrDelete) {
+    public RecipeRepository(Application application, Recipe recipeForInsertOrDelete) {
         AppDatabase db = AppDatabase.getInstance(application);
         this.recipeDao = db.recipeDao();
         this.recipeListFromDB = recipeDao.loadAllRecipes();
@@ -53,7 +53,7 @@ public class RecipeRepository {
     }
 
 
-    RecipeRepository(Application application) {
+    public RecipeRepository(Application application) {
         AppDatabase db = AppDatabase.getInstance(application);
         this.recipeDao = db.recipeDao();
         this.recipeListFromDB = recipeDao.loadAllRecipes();

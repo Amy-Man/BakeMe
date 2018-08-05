@@ -16,9 +16,6 @@ import android.view.View;
 
 import com.avivamiriammandel.bakeme.R;
 import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModel;
-import com.avivamiriammandel.bakeme.aac.RecipesInsertViewModel;
-import com.avivamiriammandel.bakeme.aac.RecipesInsertViewModelFactory;
-import com.avivamiriammandel.bakeme.aac.RecipesViewModel;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.dummy.DummyContent;
 import com.avivamiriammandel.bakeme.model.Recipe;

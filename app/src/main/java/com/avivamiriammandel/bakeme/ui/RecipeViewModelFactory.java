@@ -1,4 +1,4 @@
-package com.avivamiriammandel.bakeme.aac;
+package com.avivamiriammandel.bakeme.ui;
 
 import android.app.Application;
 import android.arch.lifecycle.ViewModel;

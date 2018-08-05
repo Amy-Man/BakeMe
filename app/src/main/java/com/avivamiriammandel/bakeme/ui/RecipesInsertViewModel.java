@@ -1,4 +1,4 @@
-package com.avivamiriammandel.bakeme.aac;
+package com.avivamiriammandel.bakeme.ui;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -7,6 +7,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.avivamiriammandel.bakeme.aac.RecipeRepository;
 import com.avivamiriammandel.bakeme.model.Recipe;
 
 import java.util.List;
