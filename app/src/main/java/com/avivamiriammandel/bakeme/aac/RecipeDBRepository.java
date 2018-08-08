@@ -29,7 +29,7 @@ private Application application;
     private static RecipeDBRepository sInstance;
 
     private  RecipeDao recipeDao;
-private  AppExecutors appExecutors;
+private   AppExecutors appExecutors;
 
 private Recipe recipeForInsertOrDelete;
 private LiveData<List<Recipe>> recipeListFromDB;
@@ -39,64 +39,21 @@ private Integer recipeId;
 
 
 private RecipeDBRepository(Application application, RecipeDao recipeDao,
-                               AppExecutors appExecutors, LiveData<List<Recipe>> recipeListFromDB,
-                           LiveData<Recipe> recipeLiveData,  List<Recipe> recipesForInsert,
-                           Integer recipeId) {
+                               AppExecutors appExecutors) {
     this.application = application;
     this.recipeDao = recipeDao;
     this.appExecutors = appExecutors;
-    this.recipeListFromDB = recipeListFromDB;
-    this.recipeLiveData = recipeLiveData;
-    this.recipesForInsert = recipesForInsert;
-    this.recipeId = recipeId;
-
 }
-
-private RecipeDBRepository(Application application, RecipeDao recipeDao,
-                               AppExecutors appExecutors,
-                           LiveData<Recipe> recipeLiveData,
-                           Integer recipeId) {
-    this.application = application;
-    this.recipeDao = recipeDao;
-    this.appExecutors = appExecutors;
-    this.recipeLiveData = recipeLiveData;
-    this.recipeId = recipeId;
-
-}
-   private RecipeDBRepository(Application application, RecipeDao recipeDao,
-                               AppExecutors appExecutors, LiveData<List<Recipe>> recipeListFromDB
-                           ) {
-    this.application = application;
-    this.recipeDao = recipeDao;
-    this.appExecutors = appExecutors;
-    this.recipeListFromDB = recipeListFromDB;
-}
-    private RecipeDBRepository(Application application, RecipeDao recipeDao,
-                               AppExecutors appExecutors,
-                               List<Recipe> recipesForInsert
-                               ) {
-        this.application = application;
-        this.recipeDao = recipeDao;
-        this.appExecutors = appExecutors;
-
-        this.recipesForInsert = recipesForInsert;
-
-
-    }
     public synchronized static RecipeDBRepository getInstance(
             Application application,
             RecipeDao recipeDao,
-            AppExecutors appExecutors,
-            LiveData<List<Recipe>> recipeListFromDB,
-            LiveData<Recipe> recipeLiveData,
-            List<Recipe> recipesForInsert,
-            Integer recipeId){
+            AppExecutors appExecutors
+            ){
         Log.d(TAG, "Getting the repository");
         if (sInstance == null) {
             synchronized (LOCK) {
                 sInstance = new RecipeDBRepository(application, recipeDao,
-                        appExecutors, recipeListFromDB, recipeLiveData,
-                        recipesForInsert, recipeId);
+                        appExecutors);
                 Log.d(TAG, "Made new repository");
             }
         }
@@ -105,29 +62,17 @@ private RecipeDBRepository(Application application, RecipeDao recipeDao,
 
     @WorkerThread
     public LiveData<List<Recipe>> loadAllRecipes() {
-        appExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
         return recipeDao.loadAllRecipes();
     }
 
 
     @WorkerThread
-    public  LiveData<Recipe> loadRecipe() {
-        appExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
+    public  LiveData<Recipe> loadRecipe(int recipeId) {
         return recipeDao.loadRecipeById(recipeId);
     }
 
     @WorkerThread
-    public void insertRecipes(){
+    public void insertRecipes(final List<Recipe> recipesForInsert){
        // recipeDao.insertRecipe(recipeForInsert);
        appExecutors.getInstance().diskIO().execute(new Runnable() {
            @Override

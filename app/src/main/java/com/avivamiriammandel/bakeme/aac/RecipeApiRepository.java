@@ -21,6 +21,7 @@ import static android.support.constraint.Constraints.TAG;
 
 public class RecipeApiRepository {
     private Service apiService;
+    private List<Recipe> recipeListFromApi;
 
     private static class SingletonHelper {
 
@@ -37,18 +38,18 @@ public class RecipeApiRepository {
         apiService = Client.getClient().create(Service.class);
     }
 
-    public LiveData<List<Recipe>> getRecipes() {
+    public List<Recipe> getRecipes() {
 
-        final MutableLiveData<List<Recipe>> recipeListFromApi = new MutableLiveData<>();
+
         apiService.getRecipes()
                 .enqueue(new Callback<List<Recipe>>() {
                     @Override
                     public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                         if (response.isSuccessful()) {
-                            recipeListFromApi.setValue(response.body());
+                            recipeListFromApi = response.body();
                             Log.d(TAG, "onResponse: " + recipeListFromApi);
                         } else {
-                            recipeListFromApi.setValue(null);
+                            recipeListFromApi = null;
                             ApiError apiError = ErrorUtils.parseError(response);
                             Log.e(TAG, "" + apiError.getMessage() + " " + apiError.getStatusCode() + " " + apiError.getEndpoint());
                         }
@@ -56,7 +57,7 @@ public class RecipeApiRepository {
 
                     @Override
                     public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                        recipeListFromApi.setValue(null);
+                        recipeListFromApi = null;
                         Log.e(TAG, "on Failure" + t.getMessage());
                     }
                 });

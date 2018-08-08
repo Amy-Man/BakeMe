@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.util.Log;
 
+import com.avivamiriammandel.bakeme.aac.AppDatabase;
 import com.avivamiriammandel.bakeme.model.Recipe;
 
 import java.util.List;
