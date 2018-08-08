@@ -3,27 +3,27 @@ package com.avivamiriammandel.bakeme.ui;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
-import com.avivamiriammandel.bakeme.aac.RecipeRepository;
+import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
+import com.avivamiriammandel.bakeme.aac.RecipeDBRepository;
 import com.avivamiriammandel.bakeme.model.Recipe;
 
 
 public class RecipeViewModel extends AndroidViewModel {
 
-    private RecipeRepository recipeRepository;
+    private RecipeDBRepository recipeApiRepository;
     private LiveData<Recipe> recipe;
 
 
     public RecipeViewModel(@NonNull Application application, int recipeId) {
         super(application);
-        this.recipeRepository = new RecipeRepository(application);
+
 
     }
 
     private LiveData<Recipe> loadRecipe(int recipeIdForQuery){
-        return recipeRepository.loadRecipe(recipeIdForQuery);
+        return recipeApiRepository.loadRecipe(recipeIdForQuery);
     }
 
     public LiveData<Recipe> getRecipe() {

@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.View;
 
 import com.avivamiriammandel.bakeme.R;
-import com.avivamiriammandel.bakeme.aac.RecipeInsertOrDeleteViewModel;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.dummy.DummyContent;
 import com.avivamiriammandel.bakeme.model.Recipe;
@@ -80,38 +79,22 @@ public class RecipesActivity extends AppCompatActivity {
         } catch (NullPointerException e) {
             throw new NullPointerException(e + "null");
         }
-         recipesViewModel.getRecipesListFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
+         recipesViewModel.getRecipesFromApi().observe(lifecycleOwner, new Observer<List<Recipe>>() {
              @Override
              public void onChanged(@Nullable List<Recipe> recipes) {
                  Log.d(TAG, "onChanged: "+ recipes);
                  if (recipes != null) {
-                      RecipesInsertViewModelFactory modelFactory =
-                                 new RecipesInsertViewModelFactory(getApplication(), recipes);
-                     RecipesInsertViewModel recipesInsertViewModel =
-                                  ViewModelProviders.of(RecipesActivity.this, modelFactory).get(RecipesInsertViewModel.class);
-                     recipesInsertViewModel.InsertListOfRecipes().observe(lifecycleOwner, new Observer<Boolean>() {
-                         @Override
-                         public void onChanged(@Nullable Boolean recipesInserted) {
-                             if (recipesInserted) {
-                                 RecipesViewModel recipesViewModelDB =
-                                         ViewModelProviders.of(RecipesActivity.this).get(RecipesViewModel.class);
-                                 recipesViewModelDB.getRecipesListFromDB().observe(lifecycleOwner, new Observer<List<Recipe>>() {
-                                     @Override
-                                     public void onChanged(@Nullable List<Recipe> recipes1) {
-                                         adapter = new RecipeAdapter(context, recipes1);
+                                  adapter = new RecipeAdapter(context, recipes);
                                          recyclerView.setAdapter(adapter);
-                                     }
-                                 });
-                             }
-                         }
-                     });
+                 }
+
 
                  }
-             }
-         });
+             });
+         }
 
 
-    }
+
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {

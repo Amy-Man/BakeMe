@@ -1,34 +1,35 @@
-package com.avivamiriammandel.bakeme.aac;
+package com.avivamiriammandel.bakeme.ui;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
 import com.avivamiriammandel.bakeme.model.Recipe;
 
 public class RecipeInsertOrDeleteViewModel extends AndroidViewModel {
 
     private static final String TAG = RecipeInsertOrDeleteViewModel.class.getSimpleName();
-    private RecipeRepository recipeRepository;
+    private RecipeApiRepository recipeApiRepository;
     private Recipe recipeForInsertOrDelete;
 
     public RecipeInsertOrDeleteViewModel(@NonNull Application application, Recipe recipeForInsertOrDelete) {
         super(application);
-        this.recipeRepository = new RecipeRepository(application);
+        //this.recipeApiRepository = new RecipeApiRepository(application);
         this.recipeForInsertOrDelete = recipeForInsertOrDelete;
         Log.d(TAG, "RecipeInsertOrDeleteViewModel: " + recipeForInsertOrDelete);
     }
+}
 
-    public void deleteRecipe() {
-        recipeRepository.deleteRecipe(recipeForInsertOrDelete);
+    /*public void deleteRecipe() {
+        recipeApiRepository.deleteRecipe(recipeForInsertOrDelete);
     }
 
     public void InsertRecipe() {
-        recipeRepository.insertRecipe(recipeForInsertOrDelete);
+        recipeApiRepository.insertRecipe(recipeForInsertOrDelete);
         Log.d(TAG, "InsertRecipe: success " + recipeForInsertOrDelete);
     }
 
 }
+*/
