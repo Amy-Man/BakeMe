@@ -23,7 +23,7 @@ public class RecipesInsertViewModel extends AndroidViewModel {
 
     private Context context = getApplication().getApplicationContext();
     private List<Recipe> recipesForInsert;
-
+    private MutableLiveData<Boolean> insertSuccess = new MutableLiveData<>();
 
 
     private MyApplication application = new MyApplication();
@@ -41,9 +41,18 @@ public class RecipesInsertViewModel extends AndroidViewModel {
         recipeDBRepository = RecipeDBRepository.getInstance(application, recipeDao, appExecutors);
 
         this.recipesForInsert = recipesForInsert;
+        InsertTheRecipes(this.recipesForInsert);
     }
 
-    public void InserttheRecipes() {
-        recipeDBRepository.insertRecipes(recipesForInsert);
+    public LiveData<Boolean> InsertTheRecipes(final List<Recipe> recipesForInsert) {
+        insertSuccess.postValue(false);
+        appExecutors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                recipeDBRepository.insertRecipes(recipesForInsert);
+            }
+        });
+        insertSuccess.postValue(true);
+        return insertSuccess;
     }
 }

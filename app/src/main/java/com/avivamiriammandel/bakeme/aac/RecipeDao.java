@@ -15,7 +15,10 @@ import java.util.List;
 public interface RecipeDao {
 
     @Query("SELECT * FROM recipes ORDER BY name")
-    LiveData<List<Recipe>> loadAllRecipes();
+    LiveData<List<Recipe>> loadAllRecipesWithLiveData();
+
+    @Query("SELECT * FROM recipes ORDER BY name")
+    List<Recipe> loadRecipesList();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     List<Long> insertRecipes(List<Recipe> recipe);

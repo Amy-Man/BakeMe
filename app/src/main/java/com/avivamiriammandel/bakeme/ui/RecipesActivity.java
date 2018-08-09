@@ -3,10 +3,12 @@ package com.avivamiriammandel.bakeme.ui;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,12 +17,18 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.avivamiriammandel.bakeme.MyApplication;
 import com.avivamiriammandel.bakeme.R;
 import com.avivamiriammandel.bakeme.aac.AppDatabase;
+import com.avivamiriammandel.bakeme.aac.AppExecutors;
 import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
+import com.avivamiriammandel.bakeme.aac.RecipeDBRepository;
+import com.avivamiriammandel.bakeme.aac.RecipeDao;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.dummy.DummyContent;
 import com.avivamiriammandel.bakeme.model.Recipe;
+import com.avivamiriammandel.bakeme.rest.Client;
+import com.avivamiriammandel.bakeme.rest.Service;
 
 import java.util.List;
 
@@ -39,26 +47,31 @@ public class RecipesActivity extends AppCompatActivity {
      * device.
      */
     //private boolean mTwoPane;
+    public RecipeApiRepository recipeApiRepository;
+    public RecipeDBRepository recipeDBRepository;
     private RecipesViewModel recipesViewModel;
+    private RecipesFromApiViewModel recipesFromApiViewModel;
     private RecipesInsertViewModel recipesInsertViewModel;
     private Context context;
-    private List<Recipe> recipeOneList;
+    private List<Recipe> recipeListFromDB;
+    private List<Recipe> recipeListFromApi;
     private LifecycleOwner lifecycleOwner = RecipesActivity.this;
     private RecipeAdapter adapter;
     private static final String TAG = RecipesActivity.class.getSimpleName();
-    public static  Boolean hasNoDatabase;
+    public static Boolean hasNoDatabase = true;
     private SharedPreferences sharedPreferences;
+    private MyApplication myApplication;
+    private RecipeDao recipeDao;
+    private AppExecutors appExecutors;
+    private Service apiService;
+    private SharedPreferences.Editor editor;
+    private Boolean insertCompleted;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
 
-        if (sharedPreferences.contains("hasDB")) {
-            hasNoDatabase = !(sharedPreferences.getBoolean("hasDB", true));
-    } else {
-            hasNoDatabase = true;
-        }
 
         context = RecipesActivity.this;
         lifecycleOwner = RecipesActivity.this;
@@ -66,6 +79,20 @@ public class RecipesActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+        myApplication = new MyApplication();
+        recipeDao = AppDatabase.getInstance(context).recipeDao();
+        appExecutors = AppExecutors.getInstance();
+        apiService = Client.getClient().create(Service.class);
+        recipeApiRepository = RecipeApiRepository.getInstance(apiService);
+        recipeDBRepository = RecipeDBRepository.getInstance(myApplication,recipeDao,appExecutors );
+
+        if (hasNoDatabase) {
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            editor = sharedPreferences.edit();
+            if (sharedPreferences.contains("hasDB")) {
+                hasNoDatabase = false;
+            }
+        }
 
  /*       FloatingActionButton fab =  findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -81,47 +108,41 @@ public class RecipesActivity extends AppCompatActivity {
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         if (hasNoDatabase) {
-            List<Recipe> recipes = RecipeApiRepository.getInstance().getRecipes();
-            RecipesInsertViewModelFactory modelFactory = new RecipesInsertViewModelFactory(getApplication(), recipes);
-            recipesInsertViewModel = ViewModelProviders.of(RecipesActivity.this, modelFactory)
-                    .get(RecipesInsertViewModel.class);
-            recipesInsertViewModel.InserttheRecipes();
-            sharedPreferences.edit().putBoolean("hasDB", true);
-            hasNoDatabase = false;
+            recipesFromApiViewModel = ViewModelProviders.of
+                    (this).get(RecipesFromApiViewModel.class);
+            recipeListFromApi = recipesFromApiViewModel.getRecipesListFromApi();
+            Log.d(TAG, "onChanged: " + recipeListFromApi);
+
+            recipesFromApiViewModel.getStatus().observe(RecipesActivity.this, new Observer<Boolean>() {
+                @Override
+                public void onChanged(@Nullable Boolean aBoolean) {
+                    RecipesInsertViewModelFactory modelFactory
+                            = new RecipesInsertViewModelFactory(getApplication(), recipeListFromApi);
+                    recipesInsertViewModel = ViewModelProviders.of(RecipesActivity.this, modelFactory)
+                            .get(RecipesInsertViewModel.class);
+
+                    recipesInsertViewModel.InsertTheRecipes(recipeListFromApi).observe
+                            (RecipesActivity.this, new Observer<Boolean>() {
+                                @Override
+                                public void onChanged(@Nullable Boolean aBoolean) {
+                                    hasNoDatabase = false;
+                                    editor = sharedPreferences.edit();
+                                    editor.putBoolean("hasDB", true).apply();
+                                    Log.d(TAG, "onCreate: " + insertCompleted);
+
+                                }
+                            });
+                }
+            });
+
         }
-
-        try {
-            recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
-        } catch (NullPointerException e) {
-            throw new NullPointerException(e + "null");
-        }
-         recipesViewModel.getRecipesListFromDB()
-                 .observe(this, new Observer<List<Recipe>>() {
-             @Override
-             public void onChanged(@Nullable List<Recipe> recipes) {
-                 Log.d(TAG, "onChanged: "+ recipes);
-                     adapter = new RecipeAdapter(context, recipes);
-                     recyclerView.setAdapter(adapter);
-                     }
-             });
-         }
-
-
-
-        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
-                //        if (mTwoPane) {
-                Bundle arguments = new Bundle();
-                arguments.putString(RecipeDetailFragment.ARG_ITEM_ID, item.id);
-                RecipeDetailFragment fragment = new RecipeDetailFragment();
-                fragment.setArguments(arguments);
-
-            }
-        };
+                    recipesViewModel = ViewModelProviders.of(RecipesActivity.this).get(RecipesViewModel.class);
+                    recipeListFromDB = recipesViewModel.getRecipesList();
+                    adapter = new RecipeAdapter(context, recipeListFromDB);
+                    recyclerView.setAdapter(adapter);
 
     }
+}
+
 

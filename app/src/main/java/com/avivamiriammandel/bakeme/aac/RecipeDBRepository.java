@@ -3,21 +3,12 @@ package com.avivamiriammandel.bakeme.aac;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.persistence.room.Database;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
-import com.avivamiriammandel.bakeme.error.ApiError;
-import com.avivamiriammandel.bakeme.error.ErrorUtils;
 import com.avivamiriammandel.bakeme.model.Recipe;
-import com.avivamiriammandel.bakeme.rest.Client;
-import com.avivamiriammandel.bakeme.rest.Service;
 
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -34,9 +25,10 @@ private   AppExecutors appExecutors;
 private Recipe recipeForInsertOrDelete;
 private LiveData<List<Recipe>> recipeListFromDB;
 private LiveData<Recipe> recipeLiveData;
-private List<Recipe> recipesForInsert;
+public List<Recipe> recipesForInsert;
 private Integer recipeId;
-
+private Integer count;
+private MutableLiveData<Boolean> recipesInsertedSuccess;
 
 private RecipeDBRepository(Application application, RecipeDao recipeDao,
                                AppExecutors appExecutors) {
@@ -61,31 +53,60 @@ private RecipeDBRepository(Application application, RecipeDao recipeDao,
     }
 
     @WorkerThread
-    public LiveData<List<Recipe>> loadAllRecipes() {
-        return recipeDao.loadAllRecipes();
+    public LiveData<List<Recipe>> loadAllRecipesWithLiveData() {
+        appExecutors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+        return recipeDao.loadAllRecipesWithLiveData();
+    }
+
+    @WorkerThread
+    public List<Recipe> loadRecipesList() {
+    appExecutors.diskIO().execute(new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    });
+        return recipeDao.loadRecipesList();
     }
 
 
     @WorkerThread
     public  LiveData<Recipe> loadRecipe(int recipeId) {
+        appExecutors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
         return recipeDao.loadRecipeById(recipeId);
     }
 
     @WorkerThread
-    public void insertRecipes(final List<Recipe> recipesForInsert){
-       // recipeDao.insertRecipe(recipeForInsert);
-       appExecutors.getInstance().diskIO().execute(new Runnable() {
-           @Override
-           public void run() {
-               try {
-                   recipeDao.insertRecipes(recipesForInsert);
-                   Log.d(TAG, "run: Insert");
-               }catch (NullPointerException e) {
-                   throw new NullPointerException(e + "null Insert");
-               }
-           }
-       });
-    }
+    public LiveData<Boolean> insertRecipes(final List<Recipe> recipesForInsert){
+        try {
+            appExecutors.diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    List<Long> recipesInsertedLong = recipeDao.insertRecipes(recipesForInsert);
+                    for (Long recipeInserted : recipesInsertedLong) {
+                        if (recipeInserted != -1)
+                            count++;
+                    }
+                    if (count == recipesForInsert.size())
+                        recipesInsertedSuccess.postValue(true);
+                    Log.d(TAG, "run: Insert all");
+                }
+            });
+        } catch (NullPointerException e) {
+                throw new NullPointerException(e + "null Insert");
+            }
+            return recipesInsertedSuccess;
+}
 
     /*@WorkerThread
     public void deleteRecipe(){
