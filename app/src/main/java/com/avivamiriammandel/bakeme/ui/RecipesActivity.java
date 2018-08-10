@@ -111,36 +111,44 @@ public class RecipesActivity extends AppCompatActivity {
         if (hasNoDatabase) {
             recipesFromApiViewModel = ViewModelProviders.of
                     (this).get(RecipesFromApiViewModel.class);
-            recipeListFromApi = recipesFromApiViewModel.getRecipesListFromApi();
-            Log.d(TAG, "onChanged: " + recipeListFromApi);
-
-            recipesFromApiViewModel.getStatus().observe(RecipesActivity.this, new Observer<Boolean>() {
+            recipesFromApiViewModel.getRecipesListFromApi().observe(this, new Observer<List<Recipe>>() {
                 @Override
-                public void onChanged(@Nullable Boolean aBoolean) {
-                    RecipesInsertViewModelFactory modelFactory
-                            = new RecipesInsertViewModelFactory(getApplication(), recipeListFromApi);
-                    recipesInsertViewModel = ViewModelProviders.of(RecipesActivity.this, modelFactory)
-                            .get(RecipesInsertViewModel.class);
+                public void onChanged(@Nullable List<Recipe> recipeList) {
+                           if (recipeList != null) {
+                               recipeListFromApi = recipeList;
+                                Log.d(TAG, "onChanged: " + recipeListFromApi);
+                                RecipesInsertViewModelFactory modelFactory
+                                        = new RecipesInsertViewModelFactory(getApplication(), recipeListFromApi);
+                                recipesInsertViewModel = ViewModelProviders.of(RecipesActivity.this, modelFactory)
+                                        .get(RecipesInsertViewModel.class);
 
-                    recipesInsertViewModel.InsertTheRecipes(recipeListFromApi).observe
-                            (RecipesActivity.this, new Observer<Boolean>() {
-                                @Override
-                                public void onChanged(@Nullable Boolean aBoolean) {
-                                    hasNoDatabase = false;
-                                    editor = sharedPreferences.edit();
-                                    editor.putBoolean("hasDB", true).apply();
-                                    Log.d(TAG, "onCreate: " + insertCompleted);
+                                recipesInsertViewModel.InsertTheRecipes(recipeListFromApi).observe
+                                        (RecipesActivity.this, new Observer<Boolean>() {
+                                            @Override
+                                            public void onChanged(@Nullable Boolean insertCompleted) {
+                                                hasNoDatabase = false;
+                                                editor = sharedPreferences.edit();
+                                                editor.putBoolean("hasDB", true).apply();
+                                                Log.d(TAG, "onCreate: " + insertCompleted);
 
-                                }
-                            });
-                }
-            });
+                                            }
+                                        });
+                            }
+                        }
+                    });
 
-        }
+                 }
                     recipesViewModel = ViewModelProviders.of(RecipesActivity.this).get(RecipesViewModel.class);
-                    recipeListFromDB = recipesViewModel.getRecipesList();
-                    adapter = new RecipeAdapter(context, recipeListFromDB);
-                    recyclerView.setAdapter(adapter);
+                    recipesViewModel.getRecipesListFromDB().observe(RecipesActivity.this, new Observer<List<Recipe>>() {
+                        @Override
+                        public void onChanged(@Nullable List<Recipe> recipeList) {
+                            recipeListFromDB = recipeList;
+                            Log.d(TAG, "onCreate: " + recipeListFromDB);
+                            adapter = new RecipeAdapter(context, recipeListFromDB);
+                            recyclerView.setAdapter(adapter);
+                        }
+                    });
+
 
     }
 }

@@ -25,7 +25,7 @@ public class RecipesFromApiViewModel extends AndroidViewModel {
     // Constant for logging
     private static final String TAG = RecipesFromApiViewModel.class.getSimpleName();
     private RecipeApiRepository recipeApiRepository;
-    private List<Recipe> recipeListFromApi;
+    private LiveData<List<Recipe>> recipeListFromApi;
     private MutableLiveData<Boolean> recipesReceived = new MutableLiveData<>();
     private Service apiService;
 
@@ -38,17 +38,17 @@ public class RecipesFromApiViewModel extends AndroidViewModel {
         recipesReceived.setValue(false);
         recipeListFromApi = recipeApiRepository.getRecipes();
         Log.d(TAG, "setRecipesListFromApi: " + recipeListFromApi);
-        recipesReceived.setValue(true);
+
 
     }
 
 
-    public List<Recipe> setRecipesListFromApi() {
+    public LiveData<List<Recipe>> setRecipesListFromApi() {
          recipeListFromApi = recipeApiRepository.getRecipes();
         Log.d(TAG, "setRecipesListFromApi: " + recipeListFromApi);
         return recipeListFromApi;
     }
-    public List<Recipe> getRecipesListFromApi () {
+    public LiveData<List<Recipe>> getRecipesListFromApi () {
         return recipeListFromApi;
     }
     public LiveData<Boolean> getStatus() {

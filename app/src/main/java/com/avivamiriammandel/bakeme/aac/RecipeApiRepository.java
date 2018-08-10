@@ -27,8 +27,8 @@ public class RecipeApiRepository {
 
 
     private Service apiService;
-    private List<Recipe> recipeListFromApi;
-
+    //private List<Recipe> recipeListFromApi;
+    private final MutableLiveData<List<Recipe>> recipeListFromApi = new MutableLiveData<>();
     private RecipeApiRepository(Service apiService) {
         this.apiService = apiService;
 
@@ -50,20 +50,23 @@ public class RecipeApiRepository {
 
 
     @WorkerThread
-    public List<Recipe> getRecipes() {
+    public LiveData<List<Recipe>> getRecipes() {
         apiService = Client.getClient().create(Service.class);
         Log.d(TAG, "getRecipes:  begin getting...");
         Call<List<Recipe>> call = apiService.getRecipes();
         Log.d(TAG, "getRecipes: call "+ call);
+
         call.enqueue(new Callback<List<Recipe>>() {
                          @Override
                          public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                          Log.d(TAG, "onResponse: " + response);
                          if (response.isSuccessful()) {
-                            recipeListFromApi = response.body();
+                            if (response.body() != null) {
+                                recipeListFromApi.postValue(response.body());
+                            }
                             Log.d(TAG, "onResponse: " + recipeListFromApi);
                         } else {
-                            //recipeListFromApi = null;
+
                             ApiError apiError = ErrorUtils.parseError(response);
                             Log.d(TAG, "onResponse: error");
                             Log.e(TAG, "" + apiError.getMessage() + " " + apiError.getStatusCode() + " " + apiError.getEndpoint());
@@ -72,11 +75,10 @@ public class RecipeApiRepository {
 
                     @Override
                     public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                        //recipeListFromApi = null;
                         Log.d(TAG, "on Failure" + t.getMessage());
                     }
                 });
         Log.d(TAG, "getRecipes: returning from retrofit");
-    return recipeListFromApi;
+        return recipeListFromApi;
     }
 }

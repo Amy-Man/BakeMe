@@ -26,9 +26,10 @@ private Recipe recipeForInsertOrDelete;
 private LiveData<List<Recipe>> recipeListFromDB;
 private LiveData<Recipe> recipeLiveData;
 public List<Recipe> recipesForInsert;
+public List<Recipe> recipesList;
 private Integer recipeId;
-private Integer count;
-private MutableLiveData<Boolean> recipesInsertedSuccess;
+private Integer count = 0;
+private MutableLiveData<Boolean> recipesInsertedSuccess = new MutableLiveData<>();
 
 private RecipeDBRepository(Application application, RecipeDao recipeDao,
                                AppExecutors appExecutors) {
@@ -52,26 +53,21 @@ private RecipeDBRepository(Application application, RecipeDao recipeDao,
         return sInstance;
     }
 
-    @WorkerThread
-    public LiveData<List<Recipe>> loadAllRecipesWithLiveData() {
-        appExecutors.diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
 
-            }
-        });
+    public LiveData<List<Recipe>> loadAllRecipesWithLiveData() {
         return recipeDao.loadAllRecipesWithLiveData();
     }
 
     @WorkerThread
     public List<Recipe> loadRecipesList() {
+
     appExecutors.diskIO().execute(new Runnable() {
         @Override
         public void run() {
-
+            recipesList = recipeDao.loadRecipesList();
         }
     });
-        return recipeDao.loadRecipesList();
+        return recipesList;
     }
 
 
@@ -87,7 +83,7 @@ private RecipeDBRepository(Application application, RecipeDao recipeDao,
     }
 
     @WorkerThread
-    public LiveData<Boolean> insertRecipes(final List<Recipe> recipesForInsert){
+        public LiveData<Boolean> insertRecipes(final List<Recipe> recipesForInsert){
         try {
             appExecutors.diskIO().execute(new Runnable() {
                 @Override

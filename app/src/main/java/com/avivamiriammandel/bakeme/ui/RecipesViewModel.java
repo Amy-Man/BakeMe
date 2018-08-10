@@ -23,9 +23,9 @@ public class RecipesViewModel extends AndroidViewModel {
     // Constant for logging
     private static final String TAG = RecipesViewModel.class.getSimpleName();
 
-    private Context context = getApplication().getApplicationContext();
+
     private LiveData<List<Recipe>> recipesListFromDB;
-    private List<Recipe> recipesList;
+    private LiveData<List<Recipe>> recipesList;
 
     private MyApplication application = new MyApplication();
     private RecipeDao recipeDao;
@@ -36,43 +36,23 @@ public class RecipesViewModel extends AndroidViewModel {
 
     public RecipesViewModel(@NonNull Application application) {
         super(application);
-        getRecipesFromDB();
-
-
-    }
-
-    private void getRecipesFromDB() {
-        recipeDao = AppDatabase.getInstance(context).recipeDao();
+        AppDatabase database = AppDatabase.getInstance(this.getApplication());
+        recipeDao = database.recipeDao();
         appExecutors = AppExecutors.getInstance();
         recipeDBRepository = RecipeDBRepository.getInstance(application, recipeDao, appExecutors);
-        setRecipesList();
-        setRecipesListFromDB();
-    }
+        recipesList = getRecipesListFromDB();
+        }
 
-    private void setRecipesList() {
-        appExecutors.diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                recipesList = recipeDBRepository.loadRecipesList();
-            }
-        });
 
-    }
-    private void setRecipesListFromDB() {
-        appExecutors.diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                recipesListFromDB = recipeDBRepository.loadAllRecipesWithLiveData();
-            }
-        });
 
-    }
-
-    public List<Recipe> getRecipesList() {
-        return recipesList;
-    }
 
     public LiveData<List<Recipe>> getRecipesListFromDB() {
+          if (recipesListFromDB==null) {
+              recipesListFromDB = recipeDBRepository.loadAllRecipesWithLiveData();
+          }
+                Log.d(TAG, "run: " + recipesListFromDB);
+
         return recipesListFromDB;
     }
+
 }
