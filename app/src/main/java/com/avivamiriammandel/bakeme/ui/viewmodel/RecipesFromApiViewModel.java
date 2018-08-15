@@ -1,19 +1,12 @@
-package com.avivamiriammandel.bakeme.ui;
+package com.avivamiriammandel.bakeme.ui.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.avivamiriammandel.bakeme.MyApplication;
-import com.avivamiriammandel.bakeme.aac.AppDatabase;
-import com.avivamiriammandel.bakeme.aac.AppExecutors;
 import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
-import com.avivamiriammandel.bakeme.aac.RecipeDao;
 import com.avivamiriammandel.bakeme.model.Recipe;
 import com.avivamiriammandel.bakeme.rest.Client;
 import com.avivamiriammandel.bakeme.rest.Service;
@@ -36,8 +29,8 @@ public class RecipesFromApiViewModel extends AndroidViewModel {
         recipeApiRepository = RecipeApiRepository.getInstance(apiService);
         Log.d(TAG, "RecipesFromApiViewModel: + get repository " + recipeApiRepository);
         recipesReceived.setValue(false);
-        recipeListFromApi = recipeApiRepository.getRecipes();
-        Log.d(TAG, "setRecipesListFromApi: " + recipeListFromApi);
+        recipeListFromApi = setRecipesListFromApi();
+        Log.d(TAG, "RecipesListFromApi: " + recipeListFromApi);
 
 
     }

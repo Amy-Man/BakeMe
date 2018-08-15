@@ -12,4 +12,16 @@
     <string name="ingredient_title">Ingredients:</string>
     <string name="servings_title">Serves</string>
 
+    <string name="title_recipes">Recipes</string>
+    <string name="title_ingredients">Ingredients</string>
+    <string name="title_steps">Steps</string>
+    <string name="details_intent_title">Details</string>
+    <string name="position_intent_title">Position</string>
+
+    <string name="recipes_bundle">Recipes</string>
+    <string name="recipe_bundle">Recipe</string>
+    <string name="recipe_name_bundle">RecipeName</string>
+    <string name="ingredients_bundle">Ingredients</string>
+    <string name="steps_bundle">Steps</string>
+
 </resources>

@@ -1,4 +1,4 @@
-package com.avivamiriammandel.bakeme.ui;
+package com.avivamiriammandel.bakeme.ui.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -6,12 +6,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.avivamiriammandel.bakeme.MyApplication;
 import com.avivamiriammandel.bakeme.aac.AppDatabase;
 import com.avivamiriammandel.bakeme.aac.AppExecutors;
-import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
 import com.avivamiriammandel.bakeme.aac.RecipeDBRepository;
 import com.avivamiriammandel.bakeme.aac.RecipeDao;
 import com.avivamiriammandel.bakeme.model.Recipe;

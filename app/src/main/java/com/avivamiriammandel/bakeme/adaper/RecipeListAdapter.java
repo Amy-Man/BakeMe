@@ -18,12 +18,12 @@ import com.avivamiriammandel.bakeme.model.Recipe;
 
 import java.util.List;
 
-public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
+public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.RecipeViewHolder> {
 
     private Context context;
     private List<Recipe> listOfRecipes;
     private onItemClickListener clickListener;
-    private static final String TAG = RecipeAdapter.class.getSimpleName();
+    private static final String TAG = RecipeListAdapter.class.getSimpleName();
 
     public interface onItemClickListener {
         void onItemClick(int position);
@@ -33,7 +33,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         this.clickListener = clickListener;
     }
 
-    public RecipeAdapter(Context context, List<Recipe> listOfRecipes) {
+    public RecipeListAdapter(Context context, List<Recipe> listOfRecipes) {
         this.context = context;
         this.listOfRecipes = listOfRecipes;
 
@@ -41,14 +41,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     @NonNull
     @Override
-    public RecipeAdapter.RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecipeListAdapter.RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recipe_list_card, parent, false);
+                .inflate(R.layout.recipes_list_card, parent, false);
         return new RecipeViewHolder(view, clickListener);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecipeAdapter.RecipeViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecipeListAdapter.RecipeViewHolder holder, int position) {
        Recipe recipe = listOfRecipes.get(position);
        holder.recipeDetailText.setText(recipe.getName());
         try {
