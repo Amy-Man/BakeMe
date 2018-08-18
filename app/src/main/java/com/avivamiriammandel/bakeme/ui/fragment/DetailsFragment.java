@@ -1,4 +1,3 @@
-/*
 package com.avivamiriammandel.bakeme.ui.fragment;
 
 import android.arch.lifecycle.LifecycleOwner;
@@ -26,12 +25,14 @@ import com.avivamiriammandel.bakeme.aac.AppExecutors;
 import com.avivamiriammandel.bakeme.aac.IngredientTypeConverter;
 import com.avivamiriammandel.bakeme.aac.RecipeDao;
 import com.avivamiriammandel.bakeme.aac.RecipeTypeConverter;
+import com.avivamiriammandel.bakeme.aac.StepListTypeConverter;
 import com.avivamiriammandel.bakeme.aac.StepTypeConverter;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.glide.GlideApp;
 import com.avivamiriammandel.bakeme.model.Recipe;
 import com.avivamiriammandel.bakeme.rest.Service;
 import com.avivamiriammandel.bakeme.ui.activity.DetailsActivity;
+import com.github.florent37.glidepalette.BitmapPalette;
 import com.github.florent37.glidepalette.GlidePalette;
 
 import java.util.List;
@@ -40,12 +41,11 @@ public class DetailsFragment extends Fragment {
 
     private boolean mTwoPane;
     private Context context;
-    private List<Recipe> recipes;
+    private List<Recipe> recipeList;
     private Recipe thisRecipe;
     private int recipePosition;
-    private String recipeString;
     private ImageView recipeImage;
-    private LifecycleOwner lifecycleOwner = DetailsFragment.this;
+    //private LifecycleOwner lifecycleOwner = DetailsActivity.this;
     private RecipeAdapter adapter;
     private static final String TAG = DetailsActivity.class.getSimpleName();
     public static Boolean hasNoDatabase = true;
@@ -57,12 +57,12 @@ public class DetailsFragment extends Fragment {
     private SharedPreferences.Editor editor;
     private Boolean insertCompleted;
     private BottomNavigationView navigation;
-    private AHBottomNavigation bottomNavigation;
+    private int ingredientFragmentId, stepFragmentId;
     private Boolean navRecipes, navIngredients, navSteps,
             addFragment = false, removeIngredientsFragment = false,
             removeStepsFragment = false;
     Toolbar toolbar;
-
+    private final int[] colors = {R.color.bottomtab_0, R.color.bottomtab_1, R.color.bottomtab_2};
 
     public DetailsFragment() {
     }
@@ -79,8 +79,10 @@ public class DetailsFragment extends Fragment {
         Bundle bundle = this.getArguments();
         Log.d(TAG, "onCreateView: " + bundle);
         if (bundle != null) {
-            thisRecipe = bundle.getParcelable(bundle.getString(getString(R.string.recipe_bundle)));
-            context = DetailsFragment.this.getContext();
+            String recipeString = bundle.getString(getString(R.string.details_intent_title));
+            thisRecipe = RecipeTypeConverter.stringToRecipe(recipeString);
+            Log.d(TAG, "onCreateView: " + thisRecipe);
+            context = getContext();
             navigation = rootView.findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             toolbar = rootView.findViewById(R.id.toolbar);
@@ -91,10 +93,11 @@ public class DetailsFragment extends Fragment {
 
             loadImage();
 
-
-            navRecipes = true;
-            navIngredients = false;
+            navigation.setSelectedItemId(R.id.navigation_ingredients);
+            navRecipes = false;
+            navIngredients = true;
             navSteps = false;
+
 
         }
         return rootView;
@@ -107,7 +110,7 @@ public class DetailsFragment extends Fragment {
             GlideApp.with(context)
                     .load(thisRecipe.getImage())
                     .listener(GlidePalette.with(thisRecipe.getImage())
-                            .use(GlidePalette.Profile.MUTED)
+                            .use(GlidePalette.Profile.VIBRANT_DARK)
                             .intoBackground(toolbar)
                             .crossfade(true)
                     )
@@ -131,8 +134,7 @@ public class DetailsFragment extends Fragment {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_recipes:
-                    unLoadIngredientsFragments();
-                    unLoadStepsFragments();
+                    loadEmptyFragment();
                     navRecipes = true;
                     navIngredients = false;
                     navSteps = false;
@@ -154,48 +156,30 @@ public class DetailsFragment extends Fragment {
             }
         }
     };
-
-
-    private void unLoadIngredientsFragments() {
-        */
-/*if (getSupportFragmentManager().findFragmentByTag(getString(R.string.ingredients_bundle)) != null)
-            removeIngredientsFragment = true;
-
-        IngredientsFragment ingredientsFragment = new IngredientsFragment();
-
-        if (removeIngredientsFragment) {
-            getSupportFragmentManager().beginTransaction()
-                    .remove(ingredientsFragment)
-                    .commit();
-            removeIngredientsFragment = false;
-        }*//*
-
-    }
-    private void unLoadStepsFragments() {
-
-        */
-/*if (getSupportFragmentManager().findFragmentByTag(getString(R.string.steps_bundle)) != null)
-            removeStepsFragment = true;
-
-        StepsFragment stepsFragment = new StepsFragment();
-
-        if (removeStepsFragment) {
-            getSupportFragmentManager().beginTransaction()
-                    .remove(stepsFragment)
-                    .commit();
-            removeStepsFragment = false;*//*
-
-        }
-
-       private void loadIngredientsFragment() {
-        unLoadStepsFragments();
-        */
-/*if ((getSupportFragmentManager().findFragmentByTag(getString(R.string.ingredients_bundle)) == null)
-                && (getSupportFragmentManager().findFragmentByTag(getString(R.string.steps_bundle)) == null)
-                && (getSupportFragmentManager().findFragmentByTag(getString(R.string.recipes_bundle)) == null)) {
+    private Fragment loadEmptyFragment() {
+        if (getActivity().getSupportFragmentManager().getFragments().isEmpty()){
             addFragment = true;
-        }*//*
+        }
+        EmptyFragment fragment = new EmptyFragment();
 
+
+        if (addFragment) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .add(R.id.baking_list_frame_layout, fragment)
+                    .commit();
+            addFragment = false;
+        }else  {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.baking_list_frame_layout, fragment)
+                    .commit();
+        }
+        return fragment;
+    }
+
+    private Fragment loadIngredientsFragment() {
+        if (getActivity().getSupportFragmentManager().getFragments().isEmpty()){
+            addFragment = true;
+        }
         String ingredientString =  IngredientTypeConverter.ingredientListToString(thisRecipe.getIngredients());
         Bundle arguments = new Bundle();
         arguments.putString(getString(R.string.ingredients_bundle), ingredientString);
@@ -203,52 +187,43 @@ public class DetailsFragment extends Fragment {
         IngredientsFragment fragment = new IngredientsFragment();
         fragment.setArguments(arguments);
 
-        */
-/*if (addFragment) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.frame_layout, fragment)
+
+        if (addFragment) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .add(R.id.baking_list_frame_layout, fragment)
                     .commit();
             addFragment = false;
         }else  {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_layout, fragment)
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.baking_list_frame_layout, fragment)
                     .commit();
-        }*//*
-
+        }
+        return fragment;
     }
-    private void loadStepsFragment() {
-        unLoadIngredientsFragments();
-        */
-/*if ((getSupportFragmentManager().findFragmentByTag(getString(R.string.ingredients_bundle)) == null)
-                && (getSupportFragmentManager().findFragmentByTag(getString(R.string.steps_bundle)) == null)
-                && (getSupportFragmentManager().findFragmentByTag(getString(R.string.recipes_bundle)) == null)) {
+    private Fragment loadStepsFragment() {
+        if (getActivity().getSupportFragmentManager().getFragments().isEmpty()){
             addFragment = true;
         }
-*//*
-
-        String stepString =  StepTypeConverter.stepListToString(thisRecipe.getSteps());
+        String stepString =  StepListTypeConverter.stepListToString(thisRecipe.getSteps());
         Bundle arguments = new Bundle();
         arguments.putString(getString(R.string.steps_bundle), stepString);
         arguments.putString(getString(R.string.recipe_name_bundle), thisRecipe.getName());
         StepsFragment fragment = new StepsFragment();
         fragment.setArguments(arguments);
-*/
-/*
+
 
         if (addFragment) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.frame_layout, fragment)
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .add(R.id.baking_list_frame_layout, fragment)
                     .commit();
             addFragment = false;
         }else  {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_layout, fragment)
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.baking_list_frame_layout, fragment)
                     .commit();
         }
-*//*
-
-
+        return fragment;
     }
-}
 
-*/
+
+}

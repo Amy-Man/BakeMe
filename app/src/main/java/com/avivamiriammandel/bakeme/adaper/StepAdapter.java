@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.avivamiriammandel.bakeme.R;
@@ -22,7 +23,16 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
 
     private Context context;
     private List<Step> listOfSteps;
+    private onItemClickListener clickListener;
     private static final String TAG = StepAdapter.class.getSimpleName();
+
+    public interface onItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(onItemClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
 
     public StepAdapter(Context context, List<Step> listOfSteps) {
         this.context = context;
@@ -35,7 +45,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     public StepAdapter.StepViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.steps_list_card, parent, false);
-        return new StepViewHolder(view);
+        return new StepViewHolder(view, clickListener);
     }
 
     @Override
@@ -63,7 +73,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
         public CardView cardView;
         public TextView stepId, stepShortDescription, stepDescription, stepVideoUrl, stepImageUrl;
 
-        public StepViewHolder(View itemView) {
+        public StepViewHolder(View itemView, final onItemClickListener clickListener) {
             super(itemView);
             constraintLayout = itemView.findViewById(R.id.step_list_card_constraint);
             cardView = itemView.findViewById(R.id.step_list_card_root);
@@ -72,6 +82,18 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
             stepDescription = itemView.findViewById(R.id.step_description);
             stepVideoUrl = itemView.findViewById(R.id.step_video_url);
             stepImageUrl = itemView.findViewById(R.id.step_image_url);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (clickListener != null){
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            clickListener.onItemClick(position);
+                        }
+                    }
+                }
+            });
 
         }
     }

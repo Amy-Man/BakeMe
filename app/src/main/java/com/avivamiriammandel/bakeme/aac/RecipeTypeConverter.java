@@ -16,16 +16,16 @@ public class RecipeTypeConverter {
     static Gson gson = new Gson();
 
     @TypeConverter
-    public static List<Recipe> stringToRecipeList(String recipes) {
+    public static Recipe stringToRecipe(String recipes) {
         if (recipes == null) {
-            return Collections.emptyList();
+            return null;
         }
-        Type listType = new TypeToken<List<Recipe>>() {}.getType();
+        Type listType = new TypeToken<Recipe>() {}.getType();
         return gson.fromJson(recipes, listType);
     }
 
     @TypeConverter
-    public static String recipesListToString(List<Recipe> recipes){
-        return gson.toJson(recipes);
+    public static String recipeToString(Recipe recipe){
+        return gson.toJson(recipe);
     }
 }

@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
+import android.text.method.ScrollingMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +28,6 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
     private Context context;
     private List<Ingredient> listOfIngredients;
     private static final String TAG = IngredientAdapter.class.getSimpleName();
-
     public IngredientAdapter(Context context, List<Ingredient> listOfIngredients) {
         this.context = context;
         this.listOfIngredients = listOfIngredients;
@@ -47,6 +49,10 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
        holder.ingredientQuantity.setText(format.format(ingredient.getQuantity()));
        holder.ingredientMeasure.setText(ingredient.getMeasure());
        holder.ingredientDescription.setText(ingredient.getIngredient());
+
+
+
+       holder.ingredientDescription.setBreakStrategy(Layout.BREAK_STRATEGY_BALANCED);
        }
 
     @Override

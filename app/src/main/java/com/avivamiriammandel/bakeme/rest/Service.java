@@ -13,7 +13,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface Service {
-    String api_path = "topher/2017/May/59121517_baking/baking.json";
+    String api_path = "baking.json";
     @GET(api_path)
     Call<List<Recipe>> getRecipes();
 

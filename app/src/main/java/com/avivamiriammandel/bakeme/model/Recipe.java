@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.avivamiriammandel.bakeme.aac.IngredientTypeConverter;
+import com.avivamiriammandel.bakeme.aac.StepListTypeConverter;
 import com.avivamiriammandel.bakeme.aac.StepTypeConverter;
 
 import com.google.gson.annotations.Expose;
@@ -30,7 +31,7 @@ public class Recipe implements Parcelable {
     @SerializedName("ingredients")
     @Expose
     private List<Ingredient> ingredients = null;
-    @TypeConverters(StepTypeConverter.class)
+    @TypeConverters(StepListTypeConverter.class)
     @SerializedName("steps")
     @Expose
     private List<Step> steps = null;

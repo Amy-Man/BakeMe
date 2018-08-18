@@ -10,21 +10,21 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
-public class StepTypeConverter {
+public class StepListTypeConverter {
 
     static Gson gson = new Gson();
 
     @TypeConverter
-    public static Step stringToStep(String step) {
-        if (step == null) {
-            return null;
+    public static List<Step> stringToStepList(String steps) {
+        if (steps == null) {
+            return Collections.emptyList();
         }
-        Type listType = new TypeToken<Step>() {}.getType();
-        return gson.fromJson(step, listType);
+        Type listType = new TypeToken<List<Step>>() {}.getType();
+        return gson.fromJson(steps, listType);
     }
 
     @TypeConverter
-    public static String stepToString(Step step){
-        return gson.toJson(step);
+    public static String stepListToString(List<Step> steps){
+        return gson.toJson(steps);
     }
 }

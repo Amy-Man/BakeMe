@@ -14,15 +14,15 @@
 
 
     <ImageView android:id="@+id/recipe_image"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerInside"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:scaleType="matrix"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         />
 
     <FrameLayout
-        android:id="@+id/frame_layout"
+        android:id="@+id/baking_list_frame_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="25dp"

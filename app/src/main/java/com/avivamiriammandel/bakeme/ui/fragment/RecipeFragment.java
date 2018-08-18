@@ -22,6 +22,7 @@ import com.avivamiriammandel.bakeme.aac.AppExecutors;
 import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
 import com.avivamiriammandel.bakeme.aac.RecipeDBRepository;
 import com.avivamiriammandel.bakeme.aac.RecipeDao;
+import com.avivamiriammandel.bakeme.aac.RecipeListTypeConverter;
 import com.avivamiriammandel.bakeme.aac.RecipeTypeConverter;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.model.Recipe;
@@ -70,7 +71,7 @@ public class RecipeFragment extends Fragment {
         Bundle bundle = this.getArguments();
         Log.d(TAG, "onCreateView: " + bundle);
         if (bundle != null) {
-            recipes = RecipeTypeConverter.stringToRecipeList(bundle.getString(getString(R.string.recipes_bundle)));
+            recipes = RecipeListTypeConverter.stringToRecipeList(bundle.getString(getString(R.string.recipes_bundle)));
             context = RecipeFragment.this.getContext();
             Log.d(TAG, "onCreateView: bundle = " + recipes);
             final RecyclerView recyclerView = rootView.findViewById(R.id.recycler_fragment);
