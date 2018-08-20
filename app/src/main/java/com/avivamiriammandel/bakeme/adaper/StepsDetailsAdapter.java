@@ -1,19 +1,16 @@
-package com.avivamiriammandel.bakeme.ui.fragment;
+package com.avivamiriammandel.bakeme.adaper;
 
-import android.arch.lifecycle.LifecycleOwner;
+import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,34 +18,21 @@ import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.avivamiriammandel.bakeme.MyApplication;
 import com.avivamiriammandel.bakeme.R;
-import com.avivamiriammandel.bakeme.aac.AppExecutors;
-import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
-import com.avivamiriammandel.bakeme.aac.RecipeDBRepository;
-import com.avivamiriammandel.bakeme.aac.RecipeDao;
-import com.avivamiriammandel.bakeme.aac.StepTypeConverter;
-import com.avivamiriammandel.bakeme.adaper.StepAdapter;
+import com.avivamiriammandel.bakeme.aac.StepListTypeConverter;
 import com.avivamiriammandel.bakeme.glide.GlideApp;
-import com.avivamiriammandel.bakeme.model.Recipe;
 import com.avivamiriammandel.bakeme.model.Step;
-import com.avivamiriammandel.bakeme.rest.Service;
-import com.avivamiriammandel.bakeme.ui.activity.RecipesActivity;
-import com.avivamiriammandel.bakeme.ui.viewmodel.RecipesFromApiViewModel;
-import com.avivamiriammandel.bakeme.ui.viewmodel.RecipesInsertViewModel;
-import com.avivamiriammandel.bakeme.ui.viewmodel.RecipesViewModel;
+import com.avivamiriammandel.bakeme.ui.fragment.StepsDetailsFragment;
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.github.florent37.glidepalette.GlidePalette;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -58,9 +42,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -68,37 +50,20 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import java.util.List;
 
-import static android.net.Uri.parse;
+public class StepsDetailsAdapter extends PagerAdapter {
 
-public class StepsDetailsFragment extends Fragment {
-    private List<Recipe> recipes;
-    public RecipeApiRepository recipeApiRepository;
-    public RecipeDBRepository recipeDBRepository;
-    private RecipesViewModel recipesViewModel;
-    private RecipesFromApiViewModel recipesFromApiViewModel;
-    private RecipesInsertViewModel recipesInsertViewModel;
-    private Context context;
-    private Step step;
-    public static Boolean hasNoDatabase = true;
-    private SharedPreferences sharedPreferences;
-    private MyApplication myApplication;
-    private RecipeDao recipeDao;
-    private AppExecutors appExecutors;
-    private Service apiService;
-    private SharedPreferences.Editor editor;
-    private Boolean insertCompleted;
-    private List<Recipe> recipeListFromApi;
-    private LifecycleOwner lifecycleOwner = StepsDetailsFragment.this;
+    Context context;
+    Bundle bundle;
+    List<Step> stepList;
+    Step step;
+    int position;
     private static final String TAG = StepsDetailsFragment.class.getSimpleName();
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     com.google.android.exoplayer2.ui.PlayerView playerView;
@@ -110,164 +75,140 @@ public class StepsDetailsFragment extends Fragment {
     public CardView cardView;
     public TextView stepId, stepShortDescription, stepDescription, stepVideoUrl, stepImageUrl;
     public ImageView thumbnail;
-    private ComponentListener componentListener;
+    private StepsDetailsAdapter.ComponentListener componentListener;
     private MediaSourceEventListener mediaSourceEventListener;
     private VideoRendererEventListener videoRendererEventListener;
     private AudioRendererEventListener audioRendererEventListener;
     Toolbar toolbar;
     com.google.android.exoplayer2.ui.AspectRatioFrameLayout frameForPlayer;
+    Activity callingActivity;
+    String stepListString;
 
 
-    public StepsDetailsFragment() {
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.steps_details_list_card, container, false);
-        Bundle bundle = this.getArguments();
+    public StepsDetailsAdapter(Context context, Bundle bundle, Activity callingActivity) {
+        this.context = context;
+        this.bundle = bundle;
+        this.callingActivity = callingActivity;
         if (bundle != null) {
-        step = StepTypeConverter.stringToStep(bundle.getString(getString(R.string.steps_bundle)));
-            Log.d(TAG, "onCreateView: "+ step.getThumbnailURL());
-        context = StepsDetailsFragment.this.getContext();
-
-            toolbar = rootView.findViewById(R.id.toolbar);
-            constraintLayout = rootView.findViewById(R.id.step_detail_list_card_constraint);
-            cardView = rootView.findViewById(R.id.step_detail_list_card_root);
-            stepId = rootView.findViewById(R.id.step_detail_id);
-            stepShortDescription = rootView.findViewById(R.id.step_detail_short_description);
-            stepDescription = rootView.findViewById(R.id.step_detail_description);
-            stepVideoUrl = rootView.findViewById(R.id.step_detail_video_url);
-            stepImageUrl = rootView.findViewById(R.id.step_detail_image_url);
-            playerView = rootView.findViewById(R.id.step_detail_video);
-            thumbnail = rootView.findViewById(R.id.step_detail_thumbnail);
-            frameForPlayer = rootView.findViewById(R.id.frame_for_player);
-
-            initViews();
-
-            return rootView;
-        } else {
-            throw new NullPointerException(TAG);
+            stepListString = bundle.getString(context.getString(R.string.steps_bundle));
+            stepList = StepListTypeConverter.stringToStepList(stepListString);
+//            position = bundle.getInt(context.getString(R.string.steps_position));
+//            callingActivity = (bundle.getParcelable(context.getString(R.string.bundle_activity)));
         }
     }
+
+    @Override
+    public int getCount() {
+        return stepList.size();
+    }
+
+    @Override
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+        return view == object;
+    }
+
+    @NonNull
+    @Override
+    public Object instantiateItem(@NonNull ViewGroup parent, int position) {
+        step = stepList.get(position);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        ViewGroup rootView = (ViewGroup) layoutInflater.inflate(R.layout.steps_details_list_card, parent,false);
+
+        toolbar = rootView.findViewById(R.id.toolbar);
+        constraintLayout = rootView.findViewById(R.id.step_detail_list_card_constraint);
+        cardView = rootView.findViewById(R.id.step_detail_list_card_root);
+        stepId = rootView.findViewById(R.id.step_detail_id);
+        stepShortDescription = rootView.findViewById(R.id.step_detail_short_description);
+        stepDescription = rootView.findViewById(R.id.step_detail_description);
+        stepVideoUrl = rootView.findViewById(R.id.step_detail_video_url);
+        stepImageUrl = rootView.findViewById(R.id.step_detail_image_url);
+        playerView = rootView.findViewById(R.id.step_detail_video);
+        thumbnail = rootView.findViewById(R.id.step_detail_thumbnail);
+        frameForPlayer = rootView.findViewById(R.id.frame_for_player);
+
+        initViews();
+
+        return rootView;
+    }
+
+    @Override
+    public void destroyItem(@NonNull ViewGroup parent, int position, @NonNull Object object) {
+        releasePlayer();
+        parent.removeView((View) object);
+    }
+
 
     private void initViews() {
         toolbar.setTitle(step.getShortDescription());
         player = ExoPlayerFactory.newSimpleInstance(context.getApplicationContext(), new DefaultTrackSelector());
 
         stepDescription.setText(step.getDescription());
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart: " + step.getThumbnailURL() + " " + step.getVideoURL());
-        if (Util.SDK_INT > 23) {
-            if (step.getThumbnailURL().contains("mp4")) {
-                initializePlayer(step.getThumbnailURL());
-                loadThumbnail(step.getVideoURL());
-            } else {
-                initializePlayer(step.getVideoURL());
-                loadThumbnail(step.getThumbnailURL());
-            }
-
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        hideSystemUI();
-        if ((Util.SDK_INT <= 23) || (player == null)) {
-            if (step.getThumbnailURL().contains("mp4")) {
-                initializePlayer(step.getThumbnailURL());
-                loadThumbnail(step.getVideoURL());
-            } else {
-                loadThumbnail(step.getThumbnailURL());
-                initializePlayer(step.getVideoURL());
-            }
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if ((Util.SDK_INT <= 23) || (player == null)) {
-            releasePlayer();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (Util.SDK_INT > 23) {
-            releasePlayer();
+        if (step.getThumbnailURL().contains("mp4")) {
+            initializePlayer(step.getThumbnailURL());
+            loadThumbnail(step.getVideoURL());
+        } else {
+            initializePlayer(step.getVideoURL());
+            loadThumbnail(step.getThumbnailURL());
         }
     }
 
     private void initializePlayer(String videoUrlString) {
-        final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         final float dpWidth = displayMetrics.widthPixels;
         final int dp = Math.round(dpWidth);
 
-       frameForPlayer.setAspectRatio(Float.valueOf("1.5"));
-       frameForPlayer.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
-       ViewGroup.LayoutParams layoutParams = frameForPlayer.getLayoutParams();
-       layoutParams.height = dp;
-       layoutParams.width = dp;
-       frameForPlayer.setLayoutParams(layoutParams);
-       playerView.setPlayer(player);
+        frameForPlayer.setAspectRatio(Float.valueOf("1.5"));
+        frameForPlayer.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+        ViewGroup.LayoutParams layoutParams = frameForPlayer.getLayoutParams();
+        layoutParams.height = dp;
+        layoutParams.width = dp;
+        frameForPlayer.setLayoutParams(layoutParams);
+        playerView.setPlayer(player);
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
 
         if (videoUrlString.isEmpty()) {
-                 Toast.makeText(getContext(), "no video avalable", Toast.LENGTH_LONG).show();
-                playerView.setVisibility(View.INVISIBLE);
+            Toast.makeText(context, "no video avalable", Toast.LENGTH_LONG).show();
+            playerView.setVisibility(View.INVISIBLE);
 
-                } else if (videoUrlString.contains("mp4")) {
+        } else if (videoUrlString.contains("mp4")) {
 
-                Log.d(TAG, "initializePlayer: " + videoUrlString);
-                playerView.setVisibility(View.VISIBLE);
-
-
-                String userAgent = Util.getUserAgent(getContext(), getString(R.string.app_name));
-
-                DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context.getApplicationContext(), userAgent);
+            Log.d(TAG, "initializePlayer: " + videoUrlString);
+            playerView.setVisibility(View.VISIBLE);
 
 
-                TrackSelection.Factory adaptiveTrackSelectionfactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
-                player = ExoPlayerFactory.newSimpleInstance((new DefaultRenderersFactory(getContext())),
-                        (new DefaultTrackSelector(adaptiveTrackSelectionfactory)),
-                        (new DefaultLoadControl()));
+            String userAgent = Util.getUserAgent(context, context.getString(R.string.app_name));
 
-                playerView.setPlayer(player);
+            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context.getApplicationContext(), userAgent);
+
+
+            TrackSelection.Factory adaptiveTrackSelectionfactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+            player = ExoPlayerFactory.newSimpleInstance((new DefaultRenderersFactory(context)),
+                    (new DefaultTrackSelector(adaptiveTrackSelectionfactory)),
+                    (new DefaultLoadControl()));
+
+            playerView.setPlayer(player);
             HttpProxyCacheServer proxy = MyApplication.getProxy(context);
             String proxyUrl = proxy.getProxyUrl(videoUrlString);
 
-                ExtractorMediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                        .createMediaSource(Uri.parse(proxyUrl));
+            ExtractorMediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.parse(proxyUrl));
 
-                player.setSeekParameters(SeekParameters.DEFAULT);
+            player.setSeekParameters(SeekParameters.DEFAULT);
 
-                //player.setRepeatMode(Player.REPEAT_MODE_ONE);
+            //player.setRepeatMode(Player.REPEAT_MODE_ONE);
 
-                player.prepare(mediaSource, true, false);
-                Log.d(TAG, "initializePlayer: " + mediaSource);
-                componentListener = new ComponentListener();
-                player.addListener(componentListener);
+            player.prepare(mediaSource, true, false);
+            Log.d(TAG, "initializePlayer: " + mediaSource);
+            componentListener = new StepsDetailsAdapter.ComponentListener();
+            player.addListener(componentListener);
 
 
-                playWhenReady = true;
-                currentWindow = 0;
-                playbackPosition = Long.valueOf("0");
-                player.setPlayWhenReady(playWhenReady);
-                player.seekTo(currentWindow, playbackPosition);
+            playWhenReady = true;
+            currentWindow = 0;
+            playbackPosition = Long.valueOf("0");
+            player.setPlayWhenReady(playWhenReady);
+            player.seekTo(currentWindow, playbackPosition);
 
                         /*new DefaultDataSourceFactory(getContext(), userAgent),
                         new DefaultExtractorsFactory(), null, null, null);
@@ -276,7 +217,7 @@ public class StepsDetailsFragment extends Fragment {
                 player.setPlayWhenReady(true);*/
 
 
-            }
+        }
 
 
     }
@@ -295,15 +236,16 @@ public class StepsDetailsFragment extends Fragment {
                     .error(R.drawable.cake_step_error)
                     .into(thumbnail);
         } catch (final IllegalArgumentException e) {
-            Log.e(TAG, getString(R.string.on_bind_view_holder) + e.getMessage());
+            Log.e(TAG, context.getString(R.string.on_bind_view_holder) + e.getMessage());
         }
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) callingActivity).setSupportActionBar(toolbar);
+        ((AppCompatActivity) callingActivity).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         toolbar.setElevation(10.f);
 
 
     }
+
 
     private void releasePlayer() {
         if (player != null) {
@@ -325,7 +267,7 @@ public class StepsDetailsFragment extends Fragment {
     }
 */
 
-        private void hideSystemUI() {
+    private void hideSystemUI() {
         playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -474,4 +416,3 @@ public class StepsDetailsFragment extends Fragment {
         }
     }
 }
-

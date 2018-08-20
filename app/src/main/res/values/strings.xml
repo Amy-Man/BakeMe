@@ -23,5 +23,7 @@
     <string name="recipe_name_bundle">RecipeName</string>
     <string name="ingredients_bundle">Ingredients</string>
     <string name="steps_bundle">Steps</string>
+    <string name="bundle_activity">Activity</string>
+    <string name="steps_position">Number Of  Steps</string>
 
 </resources>

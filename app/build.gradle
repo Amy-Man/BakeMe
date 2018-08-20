@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.avivamiriammandel.bakeme"
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -25,6 +25,8 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-core:2.8.1'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.8.1'
     implementation 'com.google.android.exoplayer:extension-ima:2.8.0'
+
+    implementation 'com.danikula:videocache:2.7.1'
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
