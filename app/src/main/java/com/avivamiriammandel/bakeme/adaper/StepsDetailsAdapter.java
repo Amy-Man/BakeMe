@@ -110,6 +110,7 @@ public class StepsDetailsAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup parent, int position) {
+        Log.d(TAG, "instantiateItem: " + position);
         step = stepList.get(position);
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         ViewGroup rootView = (ViewGroup) layoutInflater.inflate(R.layout.steps_details_list_card, parent,false);
