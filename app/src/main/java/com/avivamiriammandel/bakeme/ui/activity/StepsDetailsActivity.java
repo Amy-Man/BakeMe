@@ -11,6 +11,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.avivamiriammandel.bakeme.MyApplication;
@@ -44,7 +45,7 @@ public class StepsDetailsActivity extends AppCompatActivity {
     private Context context;
     private List<Step> steps;
     private Step thisStep;
-    private String position;
+    private int position;
     private int recipePosition;
     private ImageView recipeImage;
     private LifecycleOwner lifecycleOwner = StepsDetailsActivity.this;
@@ -64,7 +65,8 @@ public class StepsDetailsActivity extends AppCompatActivity {
             removeStepsFragment = false;
     Toolbar toolbar;
     private final int[] colors = {R.color.bottomtab_0, R.color.bottomtab_1, R.color.bottomtab_2};
-    StepsDetailsAdapter adapter;
+//    StepsDetailsAdapter adapter;
+    StepDetailAdapter adapter;
     ViewPager viewPager;
     String stringSteps, stepsString;
 
@@ -72,13 +74,13 @@ public class StepsDetailsActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_details);
-
+        Log.d(TAG, "onCreate: " );
 
         Intent fromIntent = getIntent();
         if (fromIntent.hasExtra(getString(R.string.steps_bundle))) {
           stepsString   = fromIntent.getStringExtra(getString(R.string.steps_bundle));
           steps = StepListTypeConverter.stringToStepList(stepsString);
-          position = fromIntent.getStringExtra(getString(R.string.steps_position));
+          position = fromIntent.getIntExtra(getString(R.string.steps_position), 0);
           context = getApplicationContext();
           loadViewPager();
 
@@ -95,17 +97,17 @@ public class StepsDetailsActivity extends AppCompatActivity {
        */
 
         Bundle arguments = new Bundle();
-        arguments.putString(getString(R.string.steps_position), position);
+        //arguments.putString(getString(R.string.steps_position), position);
 //        arguments.putParcelable(getString(R.string.steps_bundle), (Parcelable) steps);
         stringSteps = StepListTypeConverter.stepListToString(steps);
         //arguments.putString(getString(R.string.bundle_activity), String.valueOf(StepsDetailsActivity.class));
-        // intent.putExtra(getString(R.string.steps_position), position);
+        arguments.putInt(getString(R.string.steps_position), position);
         arguments.putString(getString(R.string.steps_bundle), stringSteps);
 
 
 
         viewPager = findViewById(R.id.view_pager);
-        adapter = new StepsDetailsAdapter(context, arguments, StepsDetailsActivity.this);
+        adapter = new StepDetailAdapter(getSupportFragmentManager(), context, arguments, StepsDetailsActivity.this);
         viewPager.setAdapter(adapter);
 
 

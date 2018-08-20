@@ -1,5 +1,6 @@
 package com.avivamiriammandel.bakeme.ui.fragment;
 
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,8 +13,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,8 +20,6 @@ import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,12 +31,10 @@ import com.avivamiriammandel.bakeme.aac.RecipeApiRepository;
 import com.avivamiriammandel.bakeme.aac.RecipeDBRepository;
 import com.avivamiriammandel.bakeme.aac.RecipeDao;
 import com.avivamiriammandel.bakeme.aac.StepTypeConverter;
-import com.avivamiriammandel.bakeme.adaper.StepAdapter;
 import com.avivamiriammandel.bakeme.glide.GlideApp;
 import com.avivamiriammandel.bakeme.model.Recipe;
 import com.avivamiriammandel.bakeme.model.Step;
 import com.avivamiriammandel.bakeme.rest.Service;
-import com.avivamiriammandel.bakeme.ui.activity.RecipesActivity;
 import com.avivamiriammandel.bakeme.ui.viewmodel.RecipesFromApiViewModel;
 import com.avivamiriammandel.bakeme.ui.viewmodel.RecipesInsertViewModel;
 import com.avivamiriammandel.bakeme.ui.viewmodel.RecipesViewModel;
@@ -48,7 +43,6 @@ import com.github.florent37.glidepalette.GlidePalette;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -58,9 +52,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -68,17 +60,12 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import java.util.List;
-
-import static android.net.Uri.parse;
 
 public class StepsDetailsFragment extends Fragment {
     private List<Recipe> recipes;
@@ -132,11 +119,12 @@ public class StepsDetailsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.steps_details_list_card, container, false);
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-        step = StepTypeConverter.stringToStep(bundle.getString(getString(R.string.steps_bundle)));
-            Log.d(TAG, "onCreateView: "+ step.getThumbnailURL());
-        context = StepsDetailsFragment.this.getContext();
+            String stepString = bundle.getString(getString(R.string.steps_bundle));
+            step = StepTypeConverter.stringToStep(stepString);
+            Log.d(TAG, "onCreateView: " + step);
+            context = StepsDetailsFragment.this.getContext();
 
-            toolbar = rootView.findViewById(R.id.toolbar);
+            toolbar = rootView.findViewById(R.id.step_detail_toolbar);
             constraintLayout = rootView.findViewById(R.id.step_detail_list_card_constraint);
             cardView = rootView.findViewById(R.id.step_detail_list_card_root);
             stepId = rootView.findViewById(R.id.step_detail_id);
@@ -147,28 +135,19 @@ public class StepsDetailsFragment extends Fragment {
             playerView = rootView.findViewById(R.id.step_detail_video);
             thumbnail = rootView.findViewById(R.id.step_detail_thumbnail);
             frameForPlayer = rootView.findViewById(R.id.frame_for_player);
-
-            initViews();
-
+            player = ExoPlayerFactory.newSimpleInstance(context.getApplicationContext(), new DefaultTrackSelector());
             return rootView;
         } else {
             throw new NullPointerException(TAG);
         }
     }
 
-    private void initViews() {
-        toolbar.setTitle(step.getShortDescription());
-        player = ExoPlayerFactory.newSimpleInstance(context.getApplicationContext(), new DefaultTrackSelector());
-
-        stepDescription.setText(step.getDescription());
-
-    }
 
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart: " + step.getThumbnailURL() + " " + step.getVideoURL());
         if (Util.SDK_INT > 23) {
+  //          initViews();
             if (step.getThumbnailURL().contains("mp4")) {
                 initializePlayer(step.getThumbnailURL());
                 loadThumbnail(step.getVideoURL());
@@ -183,8 +162,10 @@ public class StepsDetailsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
         hideSystemUI();
         if ((Util.SDK_INT <= 23) || (player == null)) {
+    //        initViews();
             if (step.getThumbnailURL().contains("mp4")) {
                 initializePlayer(step.getThumbnailURL());
                 loadThumbnail(step.getVideoURL());
@@ -198,7 +179,7 @@ public class StepsDetailsFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if ((Util.SDK_INT <= 23) || (player == null)) {
+        if ((Util.SDK_INT <= 23) || (player != null)) {
             releasePlayer();
         }
     }
@@ -255,7 +236,7 @@ public class StepsDetailsFragment extends Fragment {
 
                 player.setSeekParameters(SeekParameters.DEFAULT);
 
-                //player.setRepeatMode(Player.REPEAT_MODE_ONE);
+                player.setRepeatMode(Player.REPEAT_MODE_ONE);
 
                 player.prepare(mediaSource, true, false);
                 Log.d(TAG, "initializePlayer: " + mediaSource);
@@ -297,6 +278,11 @@ public class StepsDetailsFragment extends Fragment {
         } catch (final IllegalArgumentException e) {
             Log.e(TAG, getString(R.string.on_bind_view_holder) + e.getMessage());
         }
+
+        toolbar.setTitle(step.getShortDescription());
+        stepDescription.setText(step.getDescription());
+
+
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -307,12 +293,13 @@ public class StepsDetailsFragment extends Fragment {
 
     private void releasePlayer() {
         if (player != null) {
+            player.stop();
             playbackPosition = player.getCurrentPosition();
             currentWindow = player.getCurrentWindowIndex();
-            playWhenReady = player.getPlayWhenReady();
+            playWhenReady = false;
             player.removeListener(componentListener);
             player.release();
-            player.stop();
+
             player = null;
 
         }

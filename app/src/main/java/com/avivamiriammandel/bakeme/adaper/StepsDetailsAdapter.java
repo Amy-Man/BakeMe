@@ -5,7 +5,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
@@ -63,7 +62,7 @@ public class StepsDetailsAdapter extends PagerAdapter {
     Bundle bundle;
     List<Step> stepList;
     Step step;
-    int position;
+    int stepPosition;
     private static final String TAG = StepsDetailsFragment.class.getSimpleName();
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     com.google.android.exoplayer2.ui.PlayerView playerView;
@@ -92,7 +91,7 @@ public class StepsDetailsAdapter extends PagerAdapter {
         if (bundle != null) {
             stepListString = bundle.getString(context.getString(R.string.steps_bundle));
             stepList = StepListTypeConverter.stringToStepList(stepListString);
-//            position = bundle.getInt(context.getString(R.string.steps_position));
+            stepPosition = bundle.getInt(context.getString(R.string.steps_position));
 //            callingActivity = (bundle.getParcelable(context.getString(R.string.bundle_activity)));
         }
     }
@@ -110,12 +109,13 @@ public class StepsDetailsAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup parent, int position) {
+        position = stepPosition;
         Log.d(TAG, "instantiateItem: " + position);
         step = stepList.get(position);
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        ViewGroup rootView = (ViewGroup) layoutInflater.inflate(R.layout.steps_details_list_card, parent,false);
+        View rootView = layoutInflater.inflate(R.layout.steps_details_list_card, parent,false);
 
-        toolbar = rootView.findViewById(R.id.toolbar);
+        toolbar = rootView.findViewById(R.id.step_detail_toolbar);
         constraintLayout = rootView.findViewById(R.id.step_detail_list_card_constraint);
         cardView = rootView.findViewById(R.id.step_detail_list_card_root);
         stepId = rootView.findViewById(R.id.step_detail_id);

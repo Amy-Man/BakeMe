@@ -95,7 +95,7 @@ public class StepsFragment extends Fragment implements Parcelable {
                     stringSteps = StepListTypeConverter.stepListToString(steps);
                     callingActivity = getActivity();
                     //intent.putExtra(getString(R.string.bundle_activity), callingActivity);
-                   // intent.putExtra(getString(R.string.steps_position), position);
+                    intent.putExtra(getString(R.string.steps_position), position);
                     intent.putExtra(getString(R.string.steps_bundle), stringSteps);
                     context.startActivity(intent);
                 }

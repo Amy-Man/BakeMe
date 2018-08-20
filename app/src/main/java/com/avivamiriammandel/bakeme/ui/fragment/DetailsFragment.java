@@ -1,8 +1,6 @@
 package com.avivamiriammandel.bakeme.ui.fragment;
 
-import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.avivamiriammandel.bakeme.MyApplication;
 import com.avivamiriammandel.bakeme.R;
 import com.avivamiriammandel.bakeme.aac.AppExecutors;
@@ -26,13 +23,11 @@ import com.avivamiriammandel.bakeme.aac.IngredientTypeConverter;
 import com.avivamiriammandel.bakeme.aac.RecipeDao;
 import com.avivamiriammandel.bakeme.aac.RecipeTypeConverter;
 import com.avivamiriammandel.bakeme.aac.StepListTypeConverter;
-import com.avivamiriammandel.bakeme.aac.StepTypeConverter;
 import com.avivamiriammandel.bakeme.adaper.RecipeAdapter;
 import com.avivamiriammandel.bakeme.glide.GlideApp;
 import com.avivamiriammandel.bakeme.model.Recipe;
 import com.avivamiriammandel.bakeme.rest.Service;
 import com.avivamiriammandel.bakeme.ui.activity.DetailsActivity;
-import com.github.florent37.glidepalette.BitmapPalette;
 import com.github.florent37.glidepalette.GlidePalette;
 
 import java.util.List;
